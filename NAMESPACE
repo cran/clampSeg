@@ -1,0 +1,16 @@
+
+useDynLib(clampSeg, .registration = TRUE)
+
+importFrom(Rcpp, evalCpp)
+importFrom(stats, median, rnorm)
+importFrom(methods, is)
+
+export(lowpassFilter)
+export(getCritVal)
+export(jules)
+export(stepDetection)
+export(deconvolveLocally)
+
+# register S3 methods
+S3method(print, lowpassFilter)
+
