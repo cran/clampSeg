@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // deconvolveJump
 double deconvolveJump(const NumericVector& grid, const NumericVector& observations, const NumericVector& time, const double& leftValue, const double& rightValue, const int& typeFilter, const List& inputFilter, const NumericVector& covariances);
-RcppExport SEXP clampSeg_deconvolveJump(SEXP gridSEXP, SEXP observationsSEXP, SEXP timeSEXP, SEXP leftValueSEXP, SEXP rightValueSEXP, SEXP typeFilterSEXP, SEXP inputFilterSEXP, SEXP covariancesSEXP) {
+RcppExport SEXP _clampSeg_deconvolveJump(SEXP gridSEXP, SEXP observationsSEXP, SEXP timeSEXP, SEXP leftValueSEXP, SEXP rightValueSEXP, SEXP typeFilterSEXP, SEXP inputFilterSEXP, SEXP covariancesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -25,7 +25,7 @@ END_RCPP
 }
 // deconvolvePeak
 List deconvolvePeak(const NumericVector& gridLeft, const NumericVector& gridRight, const NumericVector& observations, const NumericVector& time, const double& leftValue, const double& rightValue, const int& typeFilter, const List& inputFilter, const NumericVector& covariances, const double& tolerance);
-RcppExport SEXP clampSeg_deconvolvePeak(SEXP gridLeftSEXP, SEXP gridRightSEXP, SEXP observationsSEXP, SEXP timeSEXP, SEXP leftValueSEXP, SEXP rightValueSEXP, SEXP typeFilterSEXP, SEXP inputFilterSEXP, SEXP covariancesSEXP, SEXP toleranceSEXP) {
+RcppExport SEXP _clampSeg_deconvolvePeak(SEXP gridLeftSEXP, SEXP gridRightSEXP, SEXP observationsSEXP, SEXP timeSEXP, SEXP leftValueSEXP, SEXP rightValueSEXP, SEXP typeFilterSEXP, SEXP inputFilterSEXP, SEXP covariancesSEXP, SEXP toleranceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;

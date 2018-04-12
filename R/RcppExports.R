@@ -2,10 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 .deconvolveJump <- function(grid, observations, time, leftValue, rightValue, typeFilter, inputFilter, covariances) {
-    .Call('clampSeg_deconvolveJump', PACKAGE = 'clampSeg', grid, observations, time, leftValue, rightValue, typeFilter, inputFilter, covariances)
+    .Call(`_clampSeg_deconvolveJump`, grid, observations, time, leftValue, rightValue, typeFilter, inputFilter, covariances)
 }
 
 .deconvolvePeak <- function(gridLeft, gridRight, observations, time, leftValue, rightValue, typeFilter, inputFilter, covariances, tolerance) {
-    .Call('clampSeg_deconvolvePeak', PACKAGE = 'clampSeg', gridLeft, gridRight, observations, time, leftValue, rightValue, typeFilter, inputFilter, covariances, tolerance)
+    .Call(`_clampSeg_deconvolvePeak`, gridLeft, gridRight, observations, time, leftValue, rightValue, typeFilter, inputFilter, covariances, tolerance)
 }
 
