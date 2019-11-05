@@ -26,7 +26,8 @@ Frick, K., Munk, A. and Sieling, H. (2014) Multiscale change-point inference. Wi
 Pein, F., Sieling, H. and Munk, A. (2016) Heterogeneous change point inference. \emph{Journal of the Royal Statistical Society, Series B}, early view.
 }
 
-\keyword{package,nonparametric}
+\keyword{package}
+\keyword{nonparametric}
 
 \seealso{\code{\link{jules}}, \code{\link{critVal}}, \code{\link{lowpassFilter}}, \code{\link{gramA}}, \code{\link{deconvolveLocally}}, \code{\link{stepDetection}}}
 

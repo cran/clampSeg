@@ -1,5 +1,5 @@
-f0598f19e445d4ea15998e69ce5d0779 *ChangeLog
-24fb336f6b951eac60800406db9cc4b7 *DESCRIPTION
+009788f5f7b474b96722f6f03eb3d611 *ChangeLog
+02143266d6087ca097434472b038f536 *DESCRIPTION
 45d98ea6fc4c8a0820939278f1b6b783 *NAMESPACE
 e14fc7452d61503986126e96c76c7d2b *R/RcppExports.R
 c273c0624f6895d311bdda2f581f8cab *R/deconvolveLocally.R
@@ -9,7 +9,7 @@ f080c98cc6df3bd4a42b4e54699e6277 *R/lowpassFilter.R
 1994f3c090f71c0eba349bd537c5b352 *R/stepDetection.R
 df8529a10ed5ae992c6eb6dc457c9939 *data/gramA.RData
 d66868bc67e2f7ab85a89e1f94db952d *inst/CITATION
-02b0c7f7c7032a6a62fd5b3e804be088 *man/clampSeg-package.Rd
+c27bb83bad9487989d7b77c5eb6f4dc8 *man/clampSeg-package.Rd
 c1555a7f501c131c5eb63d6a8013b083 *man/deconvolveLocally.Rd
 7ae6dbfbdd7bb8d1386e210f3502676d *man/getCritVal.Rd
 e47ba9378cd616b36cb791d42ff77e49 *man/gramA.Rd

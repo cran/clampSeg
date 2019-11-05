@@ -1,7 +1,7 @@
 Package: clampSeg
 Title: Idealisation of Patch Clamp Recordings
-Version: 1.0-4
-Authors@R: c(person("Pein", "Florian", role = c("aut", "cre"), email = "fpein@uni-goettingen.de"),
+Version: 1.0-5
+Authors@R: c(person("Pein", "Florian", role = c("aut", "cre"), email = "fp366@cam.ac.uk"),
     person("Thomas", "Hotz", role = "ctb", email = "thomas.hotz@tu-ilmenau.de"),
     person("Inder", "Tecuapetla-Gómez", role = "ctb", email = "itecuapetla@conabio.gob.mx"),
     person("Timo", "Aspelmeier", role = "ctb", email = "timo.aspelmeier@mathematik.uni-goettingen.de"))
@@ -14,11 +14,11 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 NeedsCompilation: yes
-Packaged: 2018-05-25 15:11:13 UTC; fpein
+Packaged: 2019-11-03 18:15:32 UTC; fpein
 Author: Pein Florian [aut, cre],
   Thomas Hotz [ctb],
   Inder Tecuapetla-Gómez [ctb],
   Timo Aspelmeier [ctb]
-Maintainer: Pein Florian <fpein@uni-goettingen.de>
+Maintainer: Pein Florian <fp366@cam.ac.uk>
 Repository: CRAN
-Date/Publication: 2018-05-25 15:58:41 UTC
+Date/Publication: 2019-11-05 20:30:02 UTC
