@@ -1,32 +1,35 @@
 \name{getCritVal}
 \alias{getCritVal}
 
-\title{Critical value}
-\description{Computes the critical value \code{q} in (\cite{Pein et al.}, 2017, (7)) based on a Monte-Carlo simulation such that (7) is a level \code{alpha} test. Since a Monte-Carlo simulation lasts potentially much longer (up to several hours or days if the number of observations is in the millions) than the main calculations, the simulations are by default saved in the workspace and on the file system such that a second call that require the same Monte-Carlo simulation will be much faster. For more details, in particular to which arguments the Monte-Carlo simulations are specific, see Section \cite{Simulating, saving and loading of Monte-Carlo simulations} below. Progress of a Monte-Carlo simulation can be reported by the argument \code{messages} and the saving can be controlled by the argument \code{option}.}
+\title{Critical values}
+\description{Computes critical values for the functions \code{\link{jsmurf}}, \code{\link{jules}}, \code{\link{hilde}}, \code{\link{stepDetection}} and \code{\link{improveSmallScales}}. \code{\link{getCritVal}} is usually automatically called, but can be called explicitly, for instance outside of a for loop to save run time. Computation requires Monte-Carlo simulations. Since a Monte-Carlo simulation lasts potentially much longer (up to several hours or days if the number of observations is in the millions) than the main calculations, the simulations are by default saved in the workspace and on the file system such that a second call that require the same Monte-Carlo simulation will be much faster. For more details, in particular to which arguments the Monte-Carlo simulations are specific, see Section \cite{Simulating, saving and loading of Monte-Carlo simulations} below. Progress of a Monte-Carlo simulation can be reported by the argument \code{messages} and the saving can be controlled by the argument \code{option}.}
 
 \usage{
-getCritVal(n, alpha = 0.05, filter, r = 1e4, nq = n, options = NULL, stat = NULL,
-           messages = NULL)
+getCritVal(n, filter, family = c("jules", "jsmurf", "jsmurfPS", "jsmurfLR",
+                                "hjsmurf", "hjsmurfSPS", "hjsmurfLR", "LR", "2Param"), 
+           alpha = 0.05, r = NULL, nq = n, options = NULL,
+           stat = NULL, messages = NULL, ...)
 }
 
 \arguments{
 \item{n}{a positive integer giving the number of observations}
-\item{alpha}{a probability, i.e. a single numeric between 0 and 1, giving the significance level. Its choice is a trade-off between data fit and parsimony of the estimator. In other words, this argument balances the risks of missing changes and detecting additional artefacts. For more details on this choice see (Frick et al., 2014, section 4) and (Pein et al., 2017, section 3.4)}
 \item{filter}{an object of class \code{\link{lowpassFilter}} giving the used analogue lowpass filter}
-\item{r}{a positive integer giving the required number of Monte-Carlo simulations if they will be simulated or loaded from the workspace or the file system}
+\item{family}{the parametric family for which critical values should be computed, select \code{"jules"} for a critical value that will be passed to \code{\link{jules}} or \code{\link{stepDetection}}, the families  \code{"jsmurf"}, \code{"jsmurfPS"}, \code{"jsmurfLR"}, \code{"hjsmurf"}, \code{"hjsmurfSPS"} and \code{"hjsmurfLR"} according to the argument \code{family} in \code{\link{jsmurf}} and \code{\link{hilde}}, and \code{"LR"} and \code{"2Param"} according to the argument \code{method} in \code{\link{hilde}} and \code{\link{improveSmallScales}}}
+\item{alpha}{a probability, i.e. a single numeric between 0 and 1, giving the significance level. Its choice is a trade-off between data fit and parsimony of the estimator. In other words, this argument balances the risks of missing conductance changes and detecting additional artefacts. For more details on this choice see the accompanying vignette or (Frick et al., 2014, Section 4) and (Pein et al., 2017, Section 3.4)}
+\item{r}{a positive integer giving the required number of Monte-Carlo simulations if they will be simulated or loaded from the workspace or the file system, a larger number improves accuracy but simulations last longer; by default \code{1e4} is used except for families \code{"LR"} and \code{"2Param"}, where \code{1e3} is used since their simulations are rather slow}
 \item{nq}{a positive integer larger than or equal to \code{n} giving the (increased) number of observations for the Monte-Carlo simulation. See Section \cite{Simulating, saving and loading of Monte-Carlo simulations} for more details}
 \item{options}{a \code{\link{list}} specifying how Monte-Carlo simulations will be simulated, saved and loaded. For more details see Section \cite{Simulating, saving and loading of Monte-Carlo simulations}}
-\item{stat}{an object of class \code{"MCSimulationVector"} or \code{"MCSimulationMaximum"}, usually computed by \code{\link{monteCarloSimulation}}. Has to be simulated for at least the given number of observations \code{n} and for the given \code{filter}. If missing it will be loaded and if not found simulated accordingly to the given \code{options}. For more details see Section \cite{Simulating, saving and loading of Monte-Carlo simulations}}
+\item{stat}{an object of class \code{"MCSimulationVector"} or \code{"MCSimulationMaximum"}, usually computed by \code{\link[stepR]{monteCarloSimulation}}. Has to be simulated for at least the given number of observations \code{n} and for the given \code{filter}. If missing it will automatically be loaded and if not found simulated accordingly to the given \code{options}. For more details see Section \cite{Simulating, saving and loading of Monte-Carlo simulations}}
 \item{messages}{a positive integer or \code{NULL}, in each \code{messages} iteration a message will be given in order to show the progress of the simulation, if \code{NULL} no message will be given}
-}
+\item{...}{additional arguments of the parametric families \code{"LR"} and \code{"2Param"}, i.e. \code{thresholdLongSegment}, \code{localValue}, \code{localVar}, \code{regularization}, \code{suppressWarningNoDeconvolution}, \code{localList}, please see their documentation in \code{\link{improveSmallScales}} to understand their meaning, parameters have to coincide in the call of \code{getCritVal} and \code{\link{hilde}} or \code{\link{improveSmallScales}}, argument \code{localVar} is only allowed for family \code{"2Param"}, for other families additional arguments are ignored with a \code{\link{warning}}}}
 
 \value{
-A single numeric giving the critical value q in (\cite{Pein et al.}, 2017, (7)).
+For families \code{"jules"}, \code{"jsmurf"}, \code{"jsmurfPS"}, \code{"jsmurfLR"} a single numeric giving the critical value and for families \code{"hjsmurf"}, \code{"hjsmurfSPS"}, \code{"hjsmurfLR"}, \code{"LR"} and \code{"2Param"} a numeric vector giving scale dependent critical values. Additionally, an \code{\link[=attributes]{attribute}} \code{n} with a single integer giving the number of data points for which the values are computed.
 }
 
 \section{Simulating, saving and loading of Monte-Carlo simulations}{
-Since a Monte-Carlo simulation lasts potentially much longer (up to several hours or days if the number of observations is in the millions) than the main calculations, this function offers multiple possibilities to save and load the simulations. The simulation, saving and loading can be controlled by the argument \code{option}. This argument has to be a \code{\link{list}} or \code{NULL}. For the \code{\link{list}} the following named entries are allowed: \code{"simulation"}, \code{"save"}, \code{"load"}, \code{"envir"} and \code{"dirs"}. All missing entries will be set to their default option.\cr
-Each Monte-Carlo simulation is specific to the number of observations and the used filter. Monte-Carlo simulations can also be performed for a (slightly) larger number of observations \eqn{n_q}{nq} given in the argument \code{nq}, which avoids extensive resimulations for only a little bit varying number of observations at price of a (slightly) smaller detection power. We recommend to not use a \code{nq} more than two times larger than the number of observations \code{n}.\cr
+Since a Monte-Carlo simulation lasts potentially much longer (up to several hours or days if the number of observations is in the millions) than the main calculations, this function offers multiple possibilities to save and load the simulations. By default, simulations are stored and loaded with suitable default values and no user choices are required. If desired, the simulation, saving and loading can be controlled by the argument \code{option}. This argument has to be a \code{\link{list}} or \code{NULL}. For the \code{\link{list}} the following named entries are allowed: \code{"simulation"}, \code{"save"}, \code{"load"}, \code{"envir"} and \code{"dirs"}. All missing entries will be set to their default option.\cr
+Each Monte-Carlo simulation is specific to the parametric \code{family}, their parameters in case of families \code{"LR"} or \code{"2Param"}, the number of observations and the used filter. Monte-Carlo simulations can also be performed for a (slightly) larger number of observations \eqn{n_q}{nq} given in the argument \code{nq}, which avoids extensive resimulations for only a little bit varying number of observations at price of a (slightly) smaller detection power. We recommend to not use a \code{nq} more than two times larger than the number of observations \code{n}.\cr
 Objects of the following types can be simulated, saved and loaded:
 \itemize{
 \item \code{"vector"}: an object of class \code{"MCSimulationMaximum"} for \code{n} observations, i.e. a numeric vector of length \code{r}
@@ -34,7 +37,7 @@ Objects of the following types can be simulated, saved and loaded:
 \item \code{"matrix"}: an object of class \code{"MCSimulationVector"} for \code{n} observations, i.e. a matrix of dimensions \code{as.integer(log2(n)) + 1L} and \code{r}
 \item \code{"matrixIncreased"}: an object of class \code{"MCSimulationVector"} for \code{nq} observations, i.e. a matrix of \code{as.integer(log2(n)) + 1L} and \code{r}
 }
-Objects of class \code{"MCSimulationVector"} and objects of class \code{"MCSimulationMaximum"} lead to the same result (if the number of observations is the same), but an object of class \code{"MCSimulationVector"} requires much more storage space and has slightly larger saving and loading times. However, simulations of type \code{"vectorIncreased"}, i.e. objects of class \code{"MCSimulationMaximum"} with \code{nq} observations, have to be resimulated if \code{as.integer(log2(n1)) != as.integer(log2(n2))} when the saved simulation was computed with \code{n == n1} and the simulation now is required for \code{n == n2} and \code{nq >= n1} and \code{nq >= n2}. All in all, if all data sets in the analysis have the same number of observations simulations of type \code{"vector"} are recommended. If they have a slightly different number of observations it is recommend to set \code{nq} to the largest number and to use simulations for an increased number of observations: If \code{as.integer(log2(n))} is the same for all data sets type \code{"vectorIncreased"} is recommend, if they differ type \code{"matrixIncreased"} avoids a resimulation at the price of a larger object to be stored and loaded.\cr
+Computation of scale depend critical values, i.e. calucatlions for the families \code{"hjsmurf"}, \code{"hjsmurfSPS"}, \code{"hjsmurfLR"}, \code{"LR"} and \code{"2Param"} require an object of class \code{"MCSimulationVector"}. Otherwise, objects of class \code{"MCSimulationVector"} and objects of class \code{"MCSimulationMaximum"} lead to the same result (if the number of observations is the same), but an object of class \code{"MCSimulationVector"} requires much more storage space and has slightly larger saving and loading times. However, simulations of type \code{"vectorIncreased"}, i.e. objects of class \code{"MCSimulationMaximum"} with \code{nq} observations, have to be resimulated if \code{as.integer(log2(n1)) != as.integer(log2(n2))} when the saved simulation was computed with \code{n == n1} and the simulation now is required for \code{n == n2} and \code{nq >= n1} and \code{nq >= n2}. All in all, if all data sets in the analysis have the same number of observations simulations of type \code{"vector"} for families \code{"jules"}, \code{"jsmurf"}, \code{"jsmurfPS"}, \code{"jsmurfLR"} and \code{"matrix"} for families \code{"hjsmurf"}, \code{"hjsmurfSPS"}, \code{"hjsmurfLR"}, \code{"LR"} and \code{"2Param"} are recommended. If they have a slightly different number of observations it is recommend to set \code{nq} to the largest number and to use simulations for an increased number of observations. For families \code{"jules"}, \code{"jsmurf"}, \code{"jsmurfPS"}, \code{"jsmurfLR"} one should also consider the following: If \code{as.integer(log2(n))} is the same for all data sets type \code{"vectorIncreased"} is recommend , if they differ type \code{"matrixIncreased"} avoids a resimulation at the price of a larger object to be stored and loaded.\cr
 The simulations can either be saved in the workspace in the variable \code{critValStepRTab} or persistently on the file system for which the package \code{\link[R.cache]{R.cache}} is used. Loading from the workspace is faster, but either the user has to save the workspace manually or in a new session simulations have to be performed again. Moreover, storing in and loading from variables and \link[=readRDS]{RDS} files is supported.
 
 \subsection{options$envir and options$dirs}{
@@ -78,11 +81,15 @@ Simulations can be removed from the workspace by removing the variable \code{cri
 }
 }
 
-\seealso{\code{\link{jules}}, \code{\link{lowpassFilter}}, \code{\link{stepDetection}}}
+\seealso{\code{\link{jsmurf}}, \code{\link{jules}}, \code{\link{hilde}}, \code{\link{lowpassFilter}}, \code{\link{stepDetection}}, \code{\link{improveSmallScales}}}
 
 \encoding{utf8}
 \references{
-Pein, F., Tecuapetla-Gómez, I., \enc{Schütte}{Schuette}, O., Steinem, C., Munk, A. (2017) Fully-automatic multiresolution idealization for filtered ion channel recordings: flickering event detection. \emph{arXiv}:1706.03671.
+Pein, F., Bartsch, A., Steinem, C., Munk, A. (2020) Heterogeneous Idealization of Ion Channel Recordings - Open Channel Noise. \emph{arXiv}:2008.02658.
+
+Pein, F., Tecuapetla-Gómez, I., \enc{Schütte}{Schuette}, O., Steinem, C., Munk, A. (2018) Fully-automatic multiresolution idealization for filtered ion channel recordings: flickering event detection. \emph{IEEE Transactions on NanoBioscience} \bold{17}(3), 300--320.
+
+Hotz, T., \enc{Schütte}{Schuette}, O., Sieling, H., Polupanow, T., Diederichsen, U., Steinem, C., and Munk, A. (2013) Idealizing ion channel recordings by a jump segmentation multiresolution filter. \emph{IEEE Transactions on NanoBioscience} \bold{12}(4), 376--386.
 
 Frick, K., Munk, A., Sieling, H. (2014) Multiscale change-point inference. With discussion and rejoinder by the authors. \emph{Journal of the Royal Statistical Society, Series B} \bold{76}(3), 495--580.
 
@@ -104,18 +111,36 @@ q <- getCritVal(length(gramA), filter = filter, messages = 100)
 # as the previous Monte-Carlo simulation will be loaded
 getCritVal(length(gramA), filter = filter)
 
+# critical value for jsmurf, 
+# Monte-Carlo simulations are specific to the parametric family,
+# hence a new Monte-Carlo simulation is required
+getCritVal(length(gramA), family = "jsmurfPS", filter = filter, messages = 100)
+
+# scale dependent critical value for jsmurf allowing for heterogeneous noise,
+# return value is a vector
+getCritVal(length(gramA), family = "hjsmurf", filter = filter, messages = 100)
+
+# scale dependent critical value for "LR" as used by improveSmallScales and hilde,
+# return value is a vector
+getCritVal(length(gramA), family = "LR", filter = filter, messages = 100)
+
+# families "LR" and "2Param" allows to specify additional parameters in ...
+# Monte-Carlo simulations are also specific to those values
+getCritVal(length(gramA), family = "LR", filter = filter, messages = 100,
+           localValue = mean, thresholdLongSegment = 15L)  
+
 # much larger significance level alpha for a larger detection power,
 # but also with the risk of detecting additional artefacts
 getCritVal(length(gramA), filter = filter, alpha = 0.9)
 
 # medium significance level alpha for a tradeoff between detection power
 # and the risk to detect additional artefacts
-getCritVal(length(gramA), filter = filter, alpha = 0.5)}
+getCritVal(length(gramA), filter = filter, alpha = 0.5)
 
 # critical values depend on the number of observations and on the filter
 # also a new Monte-Carlo simulation is required
 getCritVal(100, filter = filter, messages = 500)
-\donttest{
+
 otherFilter <- lowpassFilter(type = "bessel",
                              param = list(pole = 6L, cutoff = 0.2),
                              sr = 1e4)

@@ -1,7 +1,6 @@
 deconvolveLocally <- function(fit, data, filter, startTime = 0, regularization = 1,
                               thresholdLongSegment = 10L, localEstimate = stats::median,
-                              gridSize = c(1 / filter$sr, 1 / 10 / filter$sr,
-                                           1 / 100 / filter$sr),
+                              gridSize = c(1, 1 / 10, 1 / 100) / filter$sr,
                               windowFactorRefinement = 1,
                               output = c("onlyIdealization", "everyGrid"), report = FALSE,
                               suppressWarningNoDeconvolution = FALSE) {
@@ -102,7 +101,7 @@ deconvolveLocally <- function(fit, data, filter, startTime = 0, regularization =
   value <- fit$value
   for (i in seq(along = fit$leftEnd)) {
     indices <- .whichIndices(time, fit$leftEnd[i] + shiftStart - tolerance,
-                             fit$rightEnd[i] - shiftEnd + tolerance)
+                                            fit$rightEnd[i] - shiftEnd + tolerance)
     
     if (length(indices) >= thresholdLongSegment) {
       est <- localEstimate(data[indices])
@@ -153,8 +152,8 @@ deconvolveLocally <- function(fit, data, filter, startTime = 0, regularization =
       
       if (!suppressWarningNoDeconvolution) {
         suppressWarningNoDeconvolution <- TRUE
-        warning("at least one segment could not be deconvoled ",
-                "since two successive short segments (or a short segment at the begin or end) occured")
+        warning("at least one segment could not be deconvolved ",
+                "since two successive short segments (or a short segment at the begin or end) occurred")
       }
     } else {
       noDeconvolution <- integer()
@@ -182,38 +181,34 @@ deconvolveLocally <- function(fit, data, filter, startTime = 0, regularization =
   }
   
   # deconvolution
-  filterList <- .listFilter(filter)
-  
   i <- 1L
   while (i < length(value)) {
     if (!is.na(value[i]) && !is.na(value[i + 1])) {
       # jump
       indices <- .whichIndices(time, fit$leftEnd[i + 1] - shiftEnd + tolerance,
-                               fit$rightEnd[i] + shiftStart - tolerance)
-        
+                                              fit$rightEnd[i] + shiftStart - tolerance)
+      
       if (report) {
         message("Deconvolve change ", i , " from in total ", length(value[-1]), " changes.")
       }
       
       gridIndices <- .whichIndices(time, fit$leftEnd[i + 1] - shiftEnd - tolerance, 
-                                   fit$rightEnd[i] + tolerance)
-      cp <- .deconvolveJump(seq(time[gridIndices[1]], time[gridIndices[length(gridIndices)]], gridSize[1]),
-                            data[indices], time[indices],
-                            as.numeric(value[i]), as.numeric(value[i + 1]),
-                            .typeFilter(filter), filterList,
-                            correlations[[1]])
+                                                  fit$rightEnd[i] + tolerance)
+      cp <- lowpassFilter::.deconvolveJump(seq(time[gridIndices[1]], time[gridIndices[length(gridIndices)]], gridSize[1]),
+                                           data[indices], time[indices],
+                                           as.numeric(value[i]), as.numeric(value[i + 1]),
+                                           filter$number, filter$list, correlations[[1]])
       if (output == "everyGrid") {
         deconvolution[[1]]$rightEnd[i] <- cp
         deconvolution[[1]]$leftEnd[i + 1L] <- cp
       }
       
       for (j in seq(along = gridSize)[-1]) {
-        cp <- .deconvolveJump(seq(cp - windowFactorRefinement[j - 1] * gridSize[j - 1],
-                                  cp + windowFactorRefinement[j - 1] * gridSize[j - 1], gridSize[j]),
-                              data[indices], time[indices],
-                              as.numeric(value[i]), as.numeric(value[i + 1]),
-                              .typeFilter(filter), filterList,
-                              correlations[[j]])
+        cp <- lowpassFilter::.deconvolveJump(seq(cp - windowFactorRefinement[j - 1] * gridSize[j - 1],
+                                                 cp + windowFactorRefinement[j - 1] * gridSize[j - 1], gridSize[j]),
+                                             data[indices], time[indices],
+                                             as.numeric(value[i]), as.numeric(value[i + 1]),
+                                             filter$number, filter$list, correlations[[j]])
         if (output == "everyGrid") {
           deconvolution[[j]]$rightEnd[i] <- cp
           deconvolution[[j]]$leftEnd[i + 1] <- cp
@@ -227,25 +222,25 @@ deconvolveLocally <- function(fit, data, filter, startTime = 0, regularization =
     } else if (!is.na(value[i]) && is.na(value[i + 1]) && i + 1 != length(value) && !is.na(value[i + 2])) {
       # isolated peak
       indices <- .whichIndices(time, fit$leftEnd[i + 1] - shiftEnd + tolerance,
-                               fit$rightEnd[i + 1] + shiftStart - tolerance)
+                                              fit$rightEnd[i + 1] + shiftStart - tolerance)
       
       if (report) {
         message("Deconvolve changes ", i , " and ", i + 1, " from in total ", length(value[-1]), " changes.")
       }
       
       gridIndices1 <- .whichIndices(time, fit$leftEnd[i + 1] - shiftEnd - tolerance, 
-                                    fit$rightEnd[i] + tolerance)
+                                                   fit$rightEnd[i] + tolerance)
       gridIndices2 <- .whichIndices(time, fit$leftEnd[i + 2] - shiftEnd - tolerance, 
-                                    fit$rightEnd[i + 1] + tolerance)
+                                                   fit$rightEnd[i + 1] + tolerance)
       
-      ret <- .deconvolvePeak(seq(time[gridIndices1[1]], time[gridIndices1[length(gridIndices1)]],
-                                 gridSize[1]),
-                             seq(time[gridIndices2[1]], time[gridIndices2[length(gridIndices2)]],
-                                 gridSize[1]),
-                             data[indices], time[indices],
-                             as.numeric(value[i]), as.numeric(value[i + 2]),
-                             .typeFilter(filter), filterList,
-                             correlations[[1]], gridSize[1] * 1e-3)
+      ret <- lowpassFilter::.deconvolvePeak(seq(time[gridIndices1[1]], time[gridIndices1[length(gridIndices1)]],
+                                                gridSize[1]),
+                                            seq(time[gridIndices2[1]], time[gridIndices2[length(gridIndices2)]],
+                                                gridSize[1]),
+                                            data[indices], time[indices],
+                                            as.numeric(value[i]), as.numeric(value[i + 2]),
+                                            filter$number, filter$list,
+                                            correlations[[1]], gridSize[1] * 1e-3)
       
       if (output == "everyGrid") {
         deconvolution[[1]]$rightEnd[i] <- ret$left
@@ -256,14 +251,16 @@ deconvolveLocally <- function(fit, data, filter, startTime = 0, regularization =
       }
       
       for (j in seq(along = gridSize)[-1]) {
-        ret <- .deconvolvePeak(seq(ret$left - windowFactorRefinement[j - 1] * gridSize[j - 1],
-                                   ret$left + windowFactorRefinement[j - 1] * gridSize[j - 1], gridSize[j]),
-                               seq(ret$right - windowFactorRefinement[j - 1] * gridSize[j - 1],
-                                   ret$right + windowFactorRefinement[j - 1] * gridSize[j - 1], gridSize[j]),
-                               data[indices], time[indices],
-                               as.numeric(value[i]), as.numeric(value[i + 2]),
-                               .typeFilter(filter), filterList,
-                               correlations[[j]], gridSize[j] * 1e-3)
+        ret <- lowpassFilter::.deconvolvePeak(seq(ret$left - windowFactorRefinement[j - 1] * gridSize[j - 1],
+                                                  ret$left + windowFactorRefinement[j - 1] * gridSize[j - 1],
+                                                  gridSize[j]),
+                                              seq(ret$right - windowFactorRefinement[j - 1] * gridSize[j - 1],
+                                                  ret$right + windowFactorRefinement[j - 1] * gridSize[j - 1],
+                                                  gridSize[j]),
+                                              data[indices], time[indices],
+                                              as.numeric(value[i]), as.numeric(value[i + 2]),
+                                              filter$number, filter$list,
+                                              correlations[[j]], gridSize[j] * 1e-3)
         
         if (output == "everyGrid") {
           deconvolution[[j]]$rightEnd[i] <- ret$left
@@ -287,12 +284,12 @@ deconvolveLocally <- function(fit, data, filter, startTime = 0, regularization =
       # deconvolution impossible
       if (!suppressWarningNoDeconvolution) {
         suppressWarningNoDeconvolution <- TRUE
-        warning("at least one segment could not be deconvoled ",
-                "since two successive short segments (or a short segment at the begin or end) occured")
+        warning("at least one segment could not be deconvolved ",
+                "since two successive short segments (or a short segment at the begin or end) occurred")
       }
       
       if (is.na(value[i])) {
-        noDeconvolution <- c(noDeconvolution, i)
+        noDeconvolution[length(noDeconvolution) + 1] <- i
         
         if (i != 1L) {
           stop("unexpected result")
@@ -323,7 +320,7 @@ deconvolveLocally <- function(fit, data, filter, startTime = 0, regularization =
       
       while (is.na(value[i + 1])) {
         i <- i + 1L
-        noDeconvolution <- c(noDeconvolution, i)
+        noDeconvolution[length(noDeconvolution) + 1] <- i
         
         if (output == "everyGrid") {
           for (j in 1:length(gridSize)) {
@@ -397,41 +394,4 @@ deconvolveLocally <- function(fit, data, filter, startTime = 0, regularization =
     indices <- integer(0)
   }
   indices
-}
-
-.typeFilter <- function(x, ...) {
-  switch(x$type,
-         bessel = 0
-  )
-}
-
-.listFilter <- function(x, ...) {
-  # filter coefficients
-  a <- .BesselPolynomial(x$param$pole, reverse = TRUE)
-  # zeros
-  r <- polyroot(a)
-  # coefficients of Heaviside functions
-  p <- sapply(seq(along = r), function(i) 1 / prod(r[i] - r[-i]))
-  # power coefficients
-  A2 <- a * 1i^(seq(along = a) - 1)
-  A <- sapply(1:(2 * length(A2) - 1), function(i) {
-    j <- max(1, i - length(A2) + 1):min(i, length(A2))
-    sum(A2[j] * Conj(A2[i + 1 - j]))
-  })
-  # compute cut-off frequency of "default" filter, i.e. where power is halved
-  omega0 <- polyroot(A / a[1]^2 - c(2, rep(0, 2 * length(A2) - 2)))
-  omega0 <- Re(omega0[which.min(abs(Arg(omega0)))])
-  
-  switch(x$type,
-         bessel = list(truncation = as.numeric(x$len / x$sr),
-                       C = a[1] / x$stepfun(x$len / x$sr),
-                       timescaling = x$param$cutoff / omega0 * 2 * pi * x$sr,
-                       A = a[1] / x$stepfun(x$len / x$sr) * 
-                         (-1)^x$param$pole * Re(1 / prod(r)),
-                       a = Re(r),
-                       b = Im(r),
-                       c = Re(p),
-                       d = Im(p)
-         )
-  )
 }

@@ -1,16 +1,19 @@
 
-useDynLib(clampSeg, .registration = TRUE)
-
-importFrom(Rcpp, evalCpp)
+importFrom(lowpassFilter, lowpassFilter)
+importFrom(stepR, .testSmallScales)
 importFrom(stats, median, rnorm)
 importFrom(methods, is)
 
-export(lowpassFilter)
-export(getCritVal)
+export(jsmurf)
 export(jules)
+export(hilde)
+
+export(getCritVal)
+export(lowpassFilter)
+export(createLocalList)
+
 export(stepDetection)
 export(deconvolveLocally)
+export(improveSmallScales)
 
-# register S3 methods
-S3method(print, lowpassFilter)
 

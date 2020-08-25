@@ -3,36 +3,39 @@
 \alias{clampSeg}
 \docType{package}
 
-\title{Idealisation of patch clamp recordings}
+\title{Idealisation of Patch Clamp Recordings}
 
-\description{Allows for idealisation (fitting) of patch clamp (ion channel) recordings by implementing the \bold{JU}mp \bold{L}ocal d\bold{E}convolution \bold{S}egmentation (\acronym{JULES}) filter (\cite{Pein et al.}, 2017) in the function \code{\link{jules}}. This non-parametric (model-free) segmentation method combines statistical multiresolution techniques with local deconvolution for idealising patch clamp recordings. In particular, also flickering (events on small time scales) can be detected and idealised.}
+\description{Implements the model-free multiscale idealisation approaches: \bold{J}ump-\bold{S}egmentation by \bold{MU}ltiResolution \bold{F}ilter (\acronym{JSMURF}) (\cite{Hotz et al.}, 2013), \bold{JU}mp \bold{L}ocal d\bold{E}convolution \bold{S}egmentation (\acronym{JULES}) filter (\cite{Pein et al.}, 2018) and \bold{H}eterogeneous \bold{I}dealization by \bold{L}ocal testing and \bold{DE}convolution (\acronym{HILDE}) (\cite{Pein et al.}, 2020). These methods combine multiscale testing with deconvolution to idealise patch clamp recordings. They allow to deal with subconductance states and flickering. Further details are given in the accompanying vignette.}
 
 \details{
-The main function of this package is \code{\link{jules}} which implements the \bold{JU}mp \bold{L}ocal d\bold{E}convolution \bold{S}egmentation (\acronym{JULES}) filter (\cite{Pein et al.}, 2017). It reconstructs the signal underlying the data which is assumed to be a step (piecewise constant) function, e.g. constant conductance levels are assumed. The signal is pertubed by (Gaussian) white noise and convolved with a lowpass filter, resulting in a smooth signal pertubed by correlated noise with known correlation structure. The recorded data points are modelled as sampled (digitised) recordings of this process. For more details on this model see (\cite{Pein et al.}, 2017, section II). A small example of such a recording, 3 seconds of a gramicidin A recording, is given by \code{\link{gramA}}.\cr
-The filter can be created by the function \code{\link{lowpassFilter}}, currently only Bessel filters are supported. The critical value \code{q} in (\cite{Pein et al.}, 2017, (7)), the main parameter of JULES, can either be given by the user or be obtained by the function \code{\link{getCritVal}}, automatically called if required, in an universal manner by Monte-Carlo simulations such that (7) is a level \code{alpha}-test. The critical value \code{q}, or alternatively the significance level \code{alpha}, balances the risk of over- and underfitting. By default a small significance level of \code{alpha = 0.05} is chosen to guarantee that additional artificial changes are only be detected with a small probability. The critical value \code{q} and the Monte-Carlo simulations depend on the number of data points and the filter.\cr
-Since a Monte-Carlo simulation lasts potentially much longer (up to several hours or days if the number of observations is in the millions) than the main calculations, multiple possibilities for saving and loading the simulations are offered. Simulations can either be saved in the workspace in the variable \code{critValStepRTab} or persistently on the file system for which the package \code{\link[R.cache]{R.cache}} is used. Moreover, storing in and loading from variables and \link[=readRDS]{RDS} files is supported. The simulation, saving and loading can be controlled by the argument \code{option}. By default simulations will be saved in the workspace and on the file system. For more details and for how simulation can be removed see the documentation of \code{\link{getCritVal}}.\cr 
-The detection and estimation step of \acronym{JULES} can be obtained separately by the functions \code{\link{stepDetection}} and \code{\link{deconvolveLocally}}, respectively.
+The main functions are \code{\link{jsmurf}}, \code{\link{jules}} and \code{\link{hilde}} which implement \acronym{JSMURF}, \acronym{JULES} and \acronym{HILDE}, respectively. \acronym{JSMURF} is the most simplest and fastest approach. If short events (flickering) occurs,  \acronym{JULES} or \acronym{HILDE} should be used instead. All three methods can assume homogeneous noise, but \acronym{JSMURF} and \acronym{HILDE} have options to allow for heterogeneous noise. Further details on when which method is suitable and on how to use them are given in Section II in the vignette.\cr
+The signal underlying the data in a patch clamp recording is assumed to be a step (piecewise constant) function, e.g. constant conductance levels are assumed. The signal is perturbed by (Gaussian) white noise and convolved with a lowpass filter, resulting in a smooth signal perturbed by correlated noise with known correlation structure. The white noise is scaled by a constant if homogeneous noise is assumed and by an unknown piecewise constant function if heterogeneous noise is assumed. Heterogeneous noise can for instance by caused by open channel noise. The recorded data points are modelled as sampled (digitised) recordings of this process. For more details on this model see Section III in the vignette. A small example of such a recording, 3 seconds of a gramicidin A recording, is given by \code{\link{gramA}}.\cr
+The filter can be created by the function \code{\link{lowpassFilter}}, currently only Bessel filters are supported. \code{\link{createLocalList}} allows pre-calculations for \code{\link{improveSmallScales}} and \code{\link{hilde}}. Doing so reduces the running time if \code{\link{improveSmallScales}} and \code{\link{hilde}} are called more than once. The multiscale step in all three approaches requires critical values. Be default, those values are automatically computed. Alternatively, they can be computed separately by \code{\link{getCritVal}}. Their computation relies on Monte-Carlo simulations.\cr
+A Monte-Carlo simulation lasts potentially much longer (up to several hours or days if the number of observations is in the millions) than the main calculations. Hence, multiple possibilities for saving and loading the simulations are offered and used by default. Simulations can either be saved in the workspace in the variable \code{critValStepRTab} or persistently on the file system for which the package \code{\link[R.cache]{R.cache}} is used. Moreover, storing in and loading from variables and \link[=readRDS]{RDS} files is supported. The simulation, saving and loading can be controlled by the argument \code{option}. By default simulations will be saved in the workspace and on the file system. For more details and for how simulations can be removed see the documentation of \code{\link{getCritVal}}.\cr
+The detection and estimation step of \acronym{JULES} can be obtained separately by the functions \code{\link{stepDetection}} and \code{\link{deconvolveLocally}}, respectively. The refinement steps (second and third step) of \acronym{HILDE}, which improve a fit on small temporal scales by testing for additional events and applying local deconvolution, can be accessed by the function \code{\link{improveSmallScales}}.
 }
 
 
 \encoding{utf8}
 \references{
-Pein, F., Tecuapetla-Gómez, I., \enc{Schütte}{Schuette}, O., Steinem, C., Munk, A. (2017) Fully-automatic multiresolution idealization for filtered ion channel recordings: flickering event detection. \emph{arXiv}:1706.03671.
+Pein, F., Bartsch, A., Steinem, C., Munk, A. (2020) Heterogeneous Idealization of Ion Channel Recordings - Open Channel Noise. \emph{arXiv}:2008.02658.
+
+Pein, F., Tecuapetla-Gómez, I., \enc{Schütte}{Schuette}, O., Steinem, C., Munk, A. (2018) Fully-automatic multiresolution idealization for filtered ion channel recordings: flickering event detection. \emph{IEEE Transactions on NanoBioscience} \bold{17}(3), 300--320.
 
 Hotz, T., \enc{Schütte}{Schuette}, O., Sieling, H., Polupanow, T., Diederichsen, U., Steinem, C., and Munk, A. (2013) Idealizing ion channel recordings by a jump segmentation multiresolution filter. \emph{IEEE Transactions on NanoBioscience} \bold{12}(4), 376--386.
 
-Frick, K., Munk, A. and Sieling, H. (2014) Multiscale change-point inference. With discussion and rejoinder by the authors. \emph{Journal of the Royal Statistical Society, Series B} \bold{76}(3), 495--580.
+Pein, F., Sieling, H., Munk, A. (2017) Heterogeneous change point inference. \emph{Journal of the Royal Statistical Society, Series B}, \bold{79}(4), 1207--1227.
 
-Pein, F., Sieling, H. and Munk, A. (2016) Heterogeneous change point inference. \emph{Journal of the Royal Statistical Society, Series B}, early view.
+Frick, K., Munk, A. and Sieling, H. (2014) Multiscale change-point inference. With discussion and rejoinder by the authors. \emph{Journal of the Royal Statistical Society, Series B} \bold{76}(3), 495--580.
 }
 
 \keyword{package}
 \keyword{nonparametric}
 
-\seealso{\code{\link{jules}}, \code{\link{critVal}}, \code{\link{lowpassFilter}}, \code{\link{gramA}}, \code{\link{deconvolveLocally}}, \code{\link{stepDetection}}}
+\seealso{\code{\link{jsmurf}}, \code{\link{jules}}, \code{\link{hilde}}, \code{\link{getCritVal}}, \code{\link{lowpassFilter}}, \code{\link{createLocalList}}, \code{\link{gramA}}, \code{\link{deconvolveLocally}}, \code{\link{stepDetection}}, \code{\link{improveSmallScales}}}
 
 \examples{
-## idealisation of the gramicidin A recordings given by gramA
+## idealisation of the gramicidin A recording given by gramA
 # the used filter
 filter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 1e3 / 1e4),
                         sr = 1e4)
@@ -40,22 +43,45 @@ filter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 1e3 / 
 # the corresponding time points
 time <- 9 + seq(along = gramA) / filter$sr
 
-# plot of the data as in (Pein et al., 2017, figure 1 lower panel)
+# plot of the data as in (Pein et al., 2018, Figure 1 lower panel)
 plot(time, gramA, pch = ".", col = "grey30", ylim = c(20, 50),
      ylab = "Conductance in pS", xlab = "Time in s")
-\donttest{
-# idealisation by JULES
-# this call requires a Monte-Carlo simulation
-# and therefore might last a few minutes,
-# progress of the Monte-Carlo simulation is reported
-idealisation <- jules(gramA, filter = filter, startTime = 9, messages = 100)
 
-# this second call should be much faster
-# as the previous Monte-Carlo simulation will be loaded
-jules(gramA, filter = filter, startTime = 9)
+\donttest{
+# idealisations require Monte-Carlo simulations
+# and therefore might last a few minutes,
+# progress of the Monte-Carlo simulations is reported
+# JSMURF assuming homogeneous noise
+fit1 <- jsmurf(gramA, filter = filter, family = "jsmurfPS",
+               startTime = 9, messages = 100)
+# JSMURF allowing heterogeneous noise
+fit2 <- jsmurf(gramA, filter = filter, family = "hjsmurf",
+               startTime = 9, messages = 100)
+# JULES assuming homogeneous noise
+fit3 <- jules(gramA, filter = filter, startTime = 9, messages = 100)
+# HILDE assuming homogeneous noise
+fit4 <- hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR",
+              startTime = 9, messages = 10)
+# HILDE allowing heterogeneous noise
+fit5 <- hilde(gramA, filter = filter, family = "hjsmurf", method = "2Param",
+              startTime = 9, messages = 10, r = 100)
+# r = 100 is used to reduce its run time,
+# this is okay for illustration purposes, but for precise results
+# a larger number of Monte-Carlo simulations is recommend
+
+# gramA contains short peaks and the noise is homogeneous
+# hence jules seems to be most appropriate
+idealisation <- fit3
 
 # add idealisation to the plot
 lines(idealisation, col = "#FF0000", lwd = 3)
+
+## in the following we use jules to illustrate various points,
+## similar points are valid for jsmurf and hilde, too,
+## see also their individual documentation for more details
+# any second call should be much faster
+# as the previous Monte-Carlo simulation will be loaded
+jules(gramA, filter = filter, startTime = 9)
 
 # much larger significance level alpha for a larger detection power,
 # but also with the risk of detecting additional artefacts
@@ -65,7 +91,7 @@ lines(idealisation, col = "#FF0000", lwd = 3)
 jules(gramA, filter = filter, alpha = 0.9, startTime = 9)
 
 # getCritVal was called in jules, can be called explicitly
-# for instance outside of a for loop to save computation time
+# for instance outside of a for loop to save run time
 q <- getCritVal(length(gramA), filter = filter)
 identical(jules(gramA, q = q, filter = filter, startTime = 9), idealisation)
 
@@ -88,98 +114,64 @@ identical(each$fit, fit)
 identical(every$fit, fit)
 
 
-## zoom into a single event, (Pein et al., 2017, figure 2 lower left panel)
+## zoom into a single event, (Pein et al., 2018, Figure 2 lower left panel)
 plot(time, gramA, pch = 16, col = "grey30", ylim = c(20, 50),
      xlim = c(10.40835, 10.4103), ylab = "Conductance in pS", xlab = "Time in s")
 
-# relevant part of the idealisation
-cps <- idealisation$leftEnd[8:9]
-levels <- idealisation$value[7:9]
-t <- seq(cps[1] - 0.0009, cps[2] + 0.0023, 1e-6)
-
 # idealisation
-lines(t, ifelse(t < cps[1], rep(levels[1], length(t)),
-                ifelse(t < cps[2], rep(levels[2], length(t)),
-                       rep(levels[3], length(t)))),
-      col = "#FF0000", lwd = 3)
+lines(idealisation, col = "red", lwd = 3)
 
 # idealisation convolved with the filter
-lines(t, levels[1] * (1 - filter$truncatedStepfun(t - cps[1])) + 
-        levels[2] * (filter$truncatedStepfun(t - cps[1]) - 
-                       filter$truncatedStepfun(t - cps[2])) + 
-        levels[3] * filter$truncatedStepfun(t - cps[2]),
-      col = "#770000", lwd = 3)
+ind <- seq(10.408, 10.411, 1e-6)
+convolvedSignal <- lowpassFilter::getConvolution(ind, idealisation, filter)
+lines(ind, convolvedSignal, col = "blue", lwd = 3)
 
 # fit prior to the deconvolution step
 # does not fit the recorded data points appropriately
-cps <- fit$leftEnd[8:9]
-levels <- fit$value[7:9]
-t <- seq(cps[1] - 0.0009, cps[2] + 0.0023, 1e-6)
-
 # fit
-lines(t, ifelse(t < cps[1], rep(levels[1], length(t)),
-                ifelse(t < cps[2], rep(levels[2], length(t)),
-                       rep(levels[3], length(t)))),
-      col = "blue", lwd = 3)
+lines(fit, col = "orange", lwd = 3)
 
 # fit convolved with the filter
-lines(t, levels[1] * (1 - filter$truncatedStepfun(t - cps[1])) + 
-        levels[2] * (filter$truncatedStepfun(t - cps[1]) - 
-                       filter$truncatedStepfun(t - cps[2])) + 
-        levels[3] * filter$truncatedStepfun(t - cps[2]),
-      col = "darkblue", lwd = 3)
+ind <- seq(10.408, 10.411, 1e-6)
+convolvedSignal <- lowpassFilter::getConvolution(ind, fit, filter)
+lines(ind, convolvedSignal, col = "darkgreen", lwd = 3)
 
 
 ## zoom into a single jump
-plot(time, gramA, pch = 16, col = "grey30", ylim = c(20, 50),
-     xlim = c(9.6476, 9.6496), ylab = "Conductance in pS", xlab = "Time in s")
-
-# relevant part of the idealisation
-cp <- idealisation$leftEnd[2]
-levels <- idealisation$value[1:2]
-t <- seq(cp - 0.0009, cp + 0.0023, 1e-6)
+plot(9 + seq(along = gramA) / filter$sr, gramA, pch = 16, col = "grey30",
+     ylim = c(20, 50), xlim = c(9.6476, 9.6496), ylab = "Conductance in pS",
+     xlab = "Time in s")
 
 # idealisation
-lines(t, ifelse(t < cp, rep(levels[1], length(t)), rep(levels[2], length(t))),
-      col = "#FF0000", lwd = 3)
+lines(idealisation, col = "red", lwd = 3)
 
 # idealisation convolved with the filter
-lines(t, levels[1] * (1 - filter$stepfun(t - cp)) + levels[2] * filter$stepfun(t - cp),
-      col = "#770000", lwd = 3)
+ind <- seq(9.647, 9.65, 1e-6)
+convolvedSignal <- lowpassFilter::getConvolution(ind, idealisation, filter)
+lines(ind, convolvedSignal, col = "blue", lwd = 3)
 
 # idealisation with a wrong filter
 # does not fit the recorded data points appropriately
 wrongFilter <- lowpassFilter(type = "bessel",
                              param = list(pole = 6L, cutoff = 0.2),
                              sr = 1e4)
-                             
-# Monte-Carlo simulation depend on the number of observations and on the filter
-# hence a simulation is required again (if called for the first time)
-# to save some time the number of iterations is reduced to r = 1e3
-# hence the critical value is computed with less precision
-# In general, r = 1e3 is enough for a first impression
-# for a detailed analysis r = 1e4 is suggested
-idealisationWrong <- jules(gramA, filter = wrongFilter, startTime = 9, 
-                           r = 1e3, messages = 100)
-
-# relevant part of the idealisation
-cp <- idealisationWrong$leftEnd[2]
-levels <- idealisationWrong$value[1:2]
-t <- seq(cp - 0.0012, cp + 0.0023, 1e-6)
+# the needed Monte-Carlo simulation depends on the number of observations and the filter
+# hence a new simulation is required (if called for the first time)
+idealisationWrong <- jules(gramA, filter = wrongFilter, startTime = 9, messages = 100)
 
 # idealisation
-lines(t, ifelse(t < cp, rep(levels[1], length(t)), rep(levels[2], length(t))),
-      col = "blue", lwd = 3)
+lines(idealisationWrong, col = "orange", lwd = 3)
 
 # idealisation convolved with the filter
-lines(t, levels[1] * (1 - filter$stepfun(t - cp)) + levels[2] * filter$stepfun(t - cp),
-      col = "darkblue", lwd = 3)
+ind <- seq(9.647, 9.65, 1e-6)
+convolvedSignal <- lowpassFilter::getConvolution(ind, idealisationWrong, filter)
+lines(ind, convolvedSignal, col = "darkgreen", lwd = 3)
 
 
 # simulation for a larger number of observations can be used (nq = 3e4)
 # does not require a new simulation as the simulation from above will be used
 # (if the previous call was executed first)
-jules(gramA[1:2.99e4], filter = wrongFilter, startTime = 9, 
+jules(gramA[1:2.99e4], filter = filter, startTime = 9, 
       nq = 3e4, r = 1e3, messages = 100)
 
 # simulation of type "vectorIncreased" for n1 observations can only be reused 
@@ -200,7 +192,7 @@ jules(gramA[1:1e3], filter = filter, startTime = 9,
 jules(gramA, filter = filter, startTime = 9, messages = 100, r = 1e3,
       options = list(load = list(), save = list()))
 
-# only simulations of type "vector" and "vectorInceased" will only be in and
+# only simulations of type "vector" and "vectorInceased" will be saved and
 # loaded from the workspace, but no simulations of type "matrix" and
 # "matrixIncreased" on the file system
 jules(gramA, filter = filter, startTime = 9, messages = 100,
@@ -212,24 +204,4 @@ stat <- stepR::monteCarloSimulation(n = length(gramA), , family = "mDependentPS"
                                     filter = filter, output = "maximum",
                                     r = 1e3, messages = 100)
 jules(gramA, filter = filter, startTime = 9, stat = stat)
-
-# with given standard deviation
-sd <- stepR::sdrobnorm(gramA, lag = filter$len + 1)
-identical(jules(gramA, filter = filter, startTime = 9, sd = sd), idealisation)
-
-# with less regularisation of the correlation matrix
-jules(gramA, filter = filter, startTime = 9, regularization = 0.5)
-
-# with estimation of the level of long segments by the mean
-# but requiring 30 observations for it
-jules(gramA, filter = filter, startTime = 9,
-      localEstimate = mean, thresholdLongSegment = 30)
-
-# with one refinement step less, but with a larger grid
-# progress of the deconvolution is reported
-# potential warning for no deconvolution is suppressed
-jules(gramA, filter = filter, startTime = 9,
-      gridSize = c(1 / filter$sr, 1 / 10 / filter$sr),
-      windowFactorRefinement = 2, report = TRUE,
-      suppressWarningNoDeconvolution = TRUE)
 }}

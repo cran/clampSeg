@@ -1,4 +1,7 @@
-getCritVal <- function(n, alpha = 0.05, filter, r = 1e4, nq = n, options = NULL, stat = NULL, messages = NULL) {
+getCritVal <- function(n, filter, family = c("jules", "jsmurf", "jsmurfPS", "jsmurfLR",
+                                             "hjsmurf", "hjsmurfSPS", "hjsmurfLR", "LR", "2Param"), 
+                       alpha = 0.05, r = NULL, nq = n, options = NULL,
+                       stat = NULL, messages = NULL, ...) {
   if (!is.numeric(n) || length(n) != 1 || !is.finite(n)) {
     stop("number of observations 'n' must be a single positive integer")
   }
@@ -31,7 +34,35 @@ getCritVal <- function(n, alpha = 0.05, filter, r = 1e4, nq = n, options = NULL,
     stop("filter must be an object of class 'lowpassFilter'")
   }
   
-  stepR::critVal(output = "value", alpha = alpha, n = n, nq = nq, family = "mDependentPS",
-                 intervalSystem = "dyaLen", lengths = 2^(0:as.integer(floor(log2(n)))), penalty = "sqrt",
-                 stat = stat, filter = filter, r = r, options = options, messages = messages)
+  family <- match.arg(family)
+  if (family == "jules") {
+    family <- "mDependentPS"
+    output <- "value"
+  } else {
+    if (family %in% c("jsmurf", "jsmurfPS", "jsmurfLR")) {
+      output <- "value"
+    } else {
+      output <- "vector"
+    }
+  }
+  
+  if (is.null(r)) {
+    if(family == "LR" || family == "2Param") {
+      r <- 1e3L
+    } else {
+      r <- 1e4L
+    }
+  }
+  
+  if (family == "LR" || family == "2Param") {
+    ret <- stepR::critVal(output = output, alpha = alpha, n = n, nq = nq, family = family,
+                          stat = stat, filter = filter, r = r, options = options, messages = messages, ...)
+  } else {
+    if (!identical(list(...), list())) {
+      warning("... contains arguments, they will be ignored as ... is only usable for families 'LR' and '2Param'")
+    }
+    ret <- stepR::critVal(output = output, alpha = alpha, n = n, nq = nq, family = family,
+                          stat = stat, filter = filter, r = r, options = options, messages = messages)
+  }
+  ret
 }

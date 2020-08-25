@@ -303,7 +303,7 @@ test_that("argument alpha works and is tested", {
   testfilter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 0.1), sr = 1, len = 8L,
                               shift = 0.5)
   testdata <- .convolve(testdata, testfilter)
-  teststat <- monteCarloSimulation(n = 215, r = 100, family = "mDependentPS", filter = testfilter)
+  teststat <- stepR::monteCarloSimulation(n = 215, r = 100, family = "mDependentPS", filter = testfilter)
   testsd <- 0.5
   
   expect_error(jules(data = testdata, filter = testfilter, alpha = "s", stat = teststat))
@@ -390,7 +390,7 @@ test_that("argument ... works and is tested", {
   testfilter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 0.1), sr = 1, len = 8L,
                               shift = 0.5)
   testdata <- .convolve(testdata, testfilter)
-  teststat <- monteCarloSimulation(n = 215, r = 100, family = "mDependentPS", filter = testfilter)
+  teststat <- stepR::monteCarloSimulation(n = 215, r = 100, family = "mDependentPS", filter = testfilter)
   
   expect_error(jules(data = testdata, filter = testfilter, stat = teststat, family = "gauss"))
   expect_error(jules(data = testdata, filter = testfilter, stat = teststat, intervalSystem = "all"))
@@ -459,7 +459,7 @@ test_that("argument ... works and is tested", {
   testStepR <- new.env()
   
   testfilter1 <- lowpassFilter(param = list(pole = 4L, cutoff = 0.1), len = 8)
-  teststat1 <- monteCarloSimulation(n = 215, r = 100, family = "mDependentPS",
+  teststat1 <- stepR::monteCarloSimulation(n = 215, r = 100, family = "mDependentPS",
                                     filter = testfilter1, output = "maximum")
   expect_identical(jules(data = testdata, filter = testfilter1, r = 100L, output = "every",
                          options = list(save = list(RDSfile = testfile, variable = testvariable,
@@ -472,7 +472,7 @@ test_that("argument ... works and is tested", {
   remove(test, envir = testStepR)
   
   testfilter2 <- lowpassFilter(param = list(pole = 4L, cutoff = 0.2), len = 8)
-  teststat2 <- monteCarloSimulation(n = 215, r = 100, family = "mDependentPS",
+  teststat2 <- stepR::monteCarloSimulation(n = 215, r = 100, family = "mDependentPS",
                                     filter = testfilter2, output = "maximum")
   expect_identical(jules(data = testdata, filter = testfilter2, r = 100L, output = "every",
                          options = list(envir = testStepR, dirs = "testStepR", 
@@ -488,7 +488,7 @@ test_that("argument ... works and is tested", {
   unlink(testfile)
   
   testfilter3 <- lowpassFilter(param = list(pole = 4L, cutoff = 0.1), len = 11)
-  teststat3 <- monteCarloSimulation(n = 215, r = 100, family = "mDependentPS",
+  teststat3 <- stepR::monteCarloSimulation(n = 215, r = 100, family = "mDependentPS",
                                     filter = testfilter3, output = "maximum")
   expect_identical(getCritVal(n = 200L, filter = testfilter3, r = 100L, nq = 215L,
                               options = list(save = list(workspace = "vector", fileSystem = "vectorIncreased"),
@@ -501,7 +501,7 @@ test_that("argument ... works and is tested", {
                    jules(data = testdata, stat = teststat3, filter = testfilter3, output = "every",
                          options = list(save = list())))
   
-  teststat4 <- monteCarloSimulation(n = 320, r = 100, family = "mDependentPS", lengths = 2^(0:7),
+  teststat4 <- stepR::monteCarloSimulation(n = 320, r = 100, family = "mDependentPS", lengths = 2^(0:7),
                                     filter = testfilter3, output = "maximum")
   expect_identical(jules(data = testdata, filter = testfilter3, r = 100L, nq = 320L, output = "every",
                          options = list(save = list(workspace = "vector", fileSystem = "vectorIncreased"),
@@ -518,7 +518,7 @@ test_that("argument ... works and is tested", {
                    jules(data = testdata, stat = teststat3, filter = testfilter3, output = "every",
                          options = list(save = list())))
   
-  teststat5 <- monteCarloSimulation(n = 320, r = 200, family = "mDependentPS", lengths = 2^(0:7),
+  teststat5 <- stepR::monteCarloSimulation(n = 320, r = 200, family = "mDependentPS", lengths = 2^(0:7),
                                     filter = testfilter3, output = "maximum")
   expect_identical(jules(data = testdata, filter = testfilter3, r = 200L, nq = 320L, output = "every",
                          options = list(save = list(workspace = "vectorIncreased",

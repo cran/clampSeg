@@ -1,3 +1,21 @@
+2020-08-13 Florian Pein, version 1.1-0
+
+  Added new idealisation methods JSMURF and HILDE:
+
+  * new exports: jsmurf, hilde, createLocalList, improveSmallScales
+  
+  * new options in getCritVal: arguments family and ...
+  
+  * package imports lowpassFilter, lowpassFilter is reexported, imported stepR has to be 2.1-0 or newer, depends on R-3.3.0
+
+  * updated DESCRIPTION, CITATION
+  
+  * added a vignette, suggests R.rsp, vignette builder R.rsp
+  
+  * minor updates to existing documentation
+  
+  * minor changes in deconvolveLocally: warning no deconvolution, use of imported .deconvolveJump / .deconvolvePeak
+
 2019-11-03 Florian Pein, version 1.0-5
 
   * new maintainer email adress

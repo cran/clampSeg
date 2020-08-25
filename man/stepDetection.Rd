@@ -1,11 +1,10 @@
 \name{stepDetection}
 \alias{stepDetection}
 \alias{detection step}
-\alias{detectionStep}
 
 \title{Detection of steps / jumps by a multiresolution criterion}
-\description{Implements the detection step of \acronym{JULES} (\cite{Pein et al.}, 2017, section III B) which consists of a fit by a multiresolution criterion computed by a dynamic program and a postfilter step that removes incremental steps. This initial fit (reconstruction) can then be refined by local deconvolution implemented in \code{\link{deconvolveLocally}} to obtain \acronym{JULES}, also implemented in \code{\link{jules}}.\cr
-If \code{q == NULL} a Monte-Carlo simulation is required for computing the critical value. Since a Monte-Carlo simulation lasts potentially much longer (up to several hours or days if the number of observations is in the millions) than the main calculations, this package saves them by default in the workspace and on the file system such that a second call that require the same Monte-Carlo simulation will be much faster. For more details, in particular to which arguments the Monte-Carlo simulations are specific, see Section \cite{Storing of Monte-Carlo simulations} below. Progress of a Monte-Carlo simulation can be reported by the argument \code{messages} and the saving can be controlled by the argument \code{option}, both can be specified in \code{\dots} and are explained in \code{\link{getCritVal}}.
+\description{Implements the detection step of \acronym{JULES} (\cite{Pein et al.}, 2018, Section III-A) which consists of a fit by a multiresolution criterion computed by a dynamic program and a postfilter step that removes incremental steps. This initial fit (reconstruction) can then be refined by local deconvolution implemented in \code{\link{deconvolveLocally}} to obtain \acronym{JULES}, also implemented in \code{\link{jules}}.\cr
+If \code{q == NULL} a Monte-Carlo simulation is required for computing the critical value. Since a Monte-Carlo simulation lasts potentially much longer (up to several hours or days if the number of observations is in the millions) than the main calculations, the package saves them by default in the workspace and on the file system such that a second call that require the same Monte-Carlo simulation will be much faster. For more details, in particular to which arguments the Monte-Carlo simulations are specific, see Section \cite{Storing of Monte-Carlo simulations} below. Progress of a Monte-Carlo simulation can be reported by the argument \code{messages} and the saving can be controlled by the argument \code{option}, both can be specified in \code{\dots} and are explained in \code{\link{getCritVal}}.
 
 }
 
@@ -17,12 +16,12 @@ stepDetection(data, filter, q = NULL, alpha = 0.05, sd = NULL, startTime = 0,
 \arguments{
 \item{data}{a numeric vector containing the recorded data points}
 \item{filter}{an object of class \code{\link{lowpassFilter}} giving the used analogue lowpass filter}
-\item{q}{a single numeric giving the critical value q in (\cite{Pein et al.}, 17, (7)), by default chosen automatically by \code{\link{getCritVal}}}
-\item{alpha}{a probability, i.e. a single numeric between 0 and 1, giving the significance level to compute the critical value \code{q} (if \code{q == NULL}), see \code{\link{getCritVal}}. Its choice is a trade-off between data fit and parsimony of the estimator. In other words, this argument balances the risks of missing changes and detecting additional artefacts. For more details on this choice see (Frick et al., 2014, section 4) and (Pein et al., 2016, section 3.4)}
+\item{q}{a single numeric giving the critical value q in (\cite{Pein et al.}, 2018, (7)), by default chosen automatically by \code{\link{getCritVal}}}
+\item{alpha}{a probability, i.e. a single numeric between 0 and 1, giving the significance level to compute the critical value \code{q} (if \code{q == NULL}), see \code{\link{getCritVal}}. Its choice is a trade-off between data fit and parsimony of the estimator. In other words, this argument balances the risks of missing changes and detecting additional artefacts}
 \item{sd}{a single positive numeric giving the standard deviation (noise level) \eqn{\sigma_0}{sigma0} of the data points before filtering, by default (NULL) estimated by \code{\link{sdrobnorm}} with \code{lag = filter$len + 1L}}
 \item{startTime}{a single numeric giving the time at which recording (sampling) of \code{data} started, sampling time points will be assumed to be \code{startTime + seq(along = data) / filter$sr}}
-\item{output}{a string specifing the return type, see \cite{Value}}
-\item{...}{additional parameters to be passed to \code{\link{getCritVal}}. \code{\link{getCritVal}} will be called automatically (if \code{q == NULL}), the number of data points \code{n = length(data)} will be set and \code{alpha} and \code{filter} will be passed. For these parameter no user interaction is required and possible, all other parameters of \code{\link{getCritVal}} can be passed additionally}
+\item{output}{a string specifying the return type, see \cite{Value}}
+\item{...}{additional parameters to be passed to \code{\link{getCritVal}}. \code{\link{getCritVal}} will be called automatically (if \code{q == NULL}), the number of data points \code{n = length(data)} will be set, the \code{family = "jules"} will be set and \code{alpha} and \code{filter} will be passed. For these parameter no user interaction is required and possible, all other parameters of \code{\link{getCritVal}} can be passed additionally}
 }
 
 \value{
@@ -37,7 +36,7 @@ If \code{q == NULL} a Monte-Carlo simulation is required to compute the critical
 
 \encoding{utf8}
 \references{
-Pein, F., Tecuapetla-Gómez, I., \enc{Schütte}{Schuette}, O., Steinem, C., Munk, A. (2017) Fully-automatic multiresolution idealization for filtered ion channel recordings: flickering event detection. \emph{arXiv}:1706.03671.
+Pein, F., Tecuapetla-Gómez, I., \enc{Schütte}{Schuette}, O., Steinem, C., Munk, A. (2018) Fully-automatic multiresolution idealization for filtered ion channel recordings: flickering event detection. \emph{IEEE Transactions on NanoBioscience} \bold{17}(3), 300--320.
 }
 
 \examples{
@@ -46,7 +45,7 @@ Pein, F., Tecuapetla-Gómez, I., \enc{Schütte}{Schuette}, O., Steinem, C., Munk
 filter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 1e3 / 1e4),
                         sr = 1e4)
 \donttest{
-# this call requires a Monte-Carlo simulation
+# this call requires a Monte-Carlo simulation (if not performed before)
 # and therefore might last a few minutes,
 # progress of the Monte-Carlo simulation is reported
 fit <- stepDetection(gramA, filter = filter, startTime = 9, messages = 100)
@@ -84,31 +83,18 @@ plot(time, gramA, pch = 16, col = "grey30", ylim = c(20, 50),
 
 # fit is a piecewise constant approximation of the observations
 # hence its convolution does not fit the recorded data points appropriately
-# for a fit of the observations a deconvolution is required
-# either by calling deconvolveLocally additionally or better immediately jules
-cps <- fit$leftEnd[8:9]
-levels <- fit$value[7:9]
-t <- seq(cps[1] - 0.0009, cps[2] + 0.0023, 1e-6)
-
+# fitting the observations requires a deconvolution
+# either by calling deconveLocally,
+# or as suggested by calling jules instead of stepDetection
 # fit
-lines(t, ifelse(t < cps[1], rep(levels[1], length(t)),
-                ifelse(t < cps[2], rep(levels[2], length(t)),
-                       rep(levels[3], length(t)))),
-      col = "blue", lwd = 3)
+lines(fit, col = "red", lwd = 3)
 
 # fit convolved with the filter
-lines(t, levels[1] * (1 - filter$truncatedStepfun(t - cps[1])) + 
-        levels[2] * (filter$truncatedStepfun(t - cps[1]) - 
-                       filter$truncatedStepfun(t - cps[2])) + 
-        levels[3] * filter$truncatedStepfun(t - cps[2]),
-      col = "darkblue", lwd = 3)
+ind <- seq(10.408, 10.411, 1e-6)
+convolvedSignal <- lowpassFilter::getConvolution(ind, fit, filter)
+lines(ind, convolvedSignal, col = "blue", lwd = 3)
 
 
-# fit with a wrong filter
-wrongFilter <- lowpassFilter(type = "bessel",
-                             param = list(pole = 6L, cutoff = 0.2),
-                             sr = 1e4)
-                             
 # Monte-Carlo simulation depend on the number of observations and on the filter
 # hence a simulation is required again (if called for the first time)
 # to save some time the number of iterations is reduced to r = 1e3
@@ -122,26 +108,26 @@ stepDetection(gramA, filter = filter, startTime = 9, messages = 100L, r = 1e3L)
 # (if the previous call was executed first)
 stepDetection(gramA, filter = filter, startTime = 9,
               messages = 100L, r = 1e3L, nq = 3e4L)
-              
+
 # simulation of type "vectorIncreased" for n1 observations can only be reused 
 # for n2 observations if as.integer(log2(n1)) == as.integer(log2(n2))
 # no simulation is required, since a simulation of type "matrixIncreased"
 # will be loaded from the fileSystem
 # this call also saves a simulation of type "vectorIncreased" in the workspace 
 stepDetection(gramA[1:1e4], filter = filter, startTime = 9,
-      nq = 3e4, messages = 100, r = 1e3)
+              nq = 3e4, messages = 100, r = 1e3)
 # here a new simulation is required
 # (if no appropriate simulation is saved from a call outside of this file)
 stepDetection(gramA[1:1e3], filter = filter, startTime = 9,
-      nq = 3e4, messages = 100, r = 1e3,
-      options = list(load = list(workspace = c("vector", "vectorIncreased"))))              
+              nq = 3e4, messages = 100, r = 1e3,
+              options = list(load = list(workspace = c("vector", "vectorIncreased"))))
 
-# the above calls saved and (attempted to) load Monte-Carlo simulations
+# the above calls saved and (attempted to) load Monte-Carlo simulations              
 # in the following call the simulations will neither be saved nor loaded
 stepDetection(gramA, filter = filter, startTime = 9, messages = 100L, r = 1e3L,
               options = list(load = list(), save = list()))
 
-# only simulations of type "vector" and "vectorInceased" will only be in and
+# only simulations of type "vector" and "vectorInceased" will save and
 # loaded from the workspace, but no simulations of type "matrix" and
 # "matrixIncreased" on the file system
 stepDetection(gramA, filter = filter, startTime = 9, messages = 100L, r = 1e3L,

@@ -4,8 +4,6 @@ note <- sprintf("R package version %s", meta$Version)
 bibentry(bibtype = "Manual",
          title = "{clampSeg}: Idealisation of Patch Clamp Recordings",
          author = c(person("Florian", "Pein"),
-                    person("Thomas", "Hotz"),
-                    person("Inder", "Tecuapetla-Gómez"),
                     person("Timo", "Aspelmeier")),
          year = year,
          note = note,
