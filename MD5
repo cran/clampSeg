@@ -1,5 +1,5 @@
-ceff75c9b8b238efb4e8e7f17408bc2f *ChangeLog
-fa913794e7f062f12b901e5302b91438 *DESCRIPTION
+8b7e5503239cc216f6ab9b576ccab8f9 *ChangeLog
+1372ac08a6c1140a6a8487be55254576 *DESCRIPTION
 7adf9cbc9caf4901a1eb0d45f2420d7a *NAMESPACE
 aec7c021f693bae26bb31f4c1f33e091 *R/createLocalList.R
 3d028c5d7ea0b3c54cbb4e2df6f8f478 *R/deconvolveLocally.R
@@ -9,11 +9,11 @@ abc8a361212bbbd60e2ced0be4d4c8ca *R/hilde.R
 3544da64972f249d6b0e35d927c8b9d6 *R/jsmurf.R
 3b3299d9e73d77a3ee858d90d99a5748 *R/jules.R
 1994f3c090f71c0eba349bd537c5b352 *R/stepDetection.R
-8d2119460c85be5aa23ebe6cf1695030 *build/vignette.rds
+f63ac707fafab257523f1bbcc21ec23d *build/vignette.rds
 df8529a10ed5ae992c6eb6dc457c9939 *data/gramA.RData
 8c32c0a6a8c51aec5dd22f67d7af8dc4 *inst/CITATION
 62e71661bd9efb1cbb7c759a9a8ba2db *inst/doc/Vignette.ltx
-51f55980bbd7eb3c200cda402655b856 *inst/doc/Vignette.pdf
+6fb790c11795b94375bc25a4d9804bd4 *inst/doc/Vignette.pdf
 8050e68cf4b75e87881ba1c8dc04f741 *man/clampSeg-package.Rd
 16d47f438d9b3c5f123a8482c272c002 *man/createLocalList.Rd
 c6c3fa56313566dcf542b071217a64c0 *man/deconvolveLocally.Rd

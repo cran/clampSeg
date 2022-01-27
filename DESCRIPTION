@@ -1,7 +1,7 @@
 Package: clampSeg
 Title: Idealisation of Patch Clamp Recordings
-Version: 1.1-0
-Authors@R: c(person("Pein", "Florian", role = c("aut", "cre"), email = "fp366@cam.ac.uk"),
+Version: 1.1-1
+Authors@R: c(person("Pein", "Florian", role = c("aut", "cre"), email = "f.pein@lancaster.ac.uk"),
     person("Timo", "Aspelmeier", role = "ctb", email = "timo.aspelmeier@mathematik.uni-goettingen.de"))
 Depends: R (>= 3.3.0)
 Imports: stepR (>= 2.1.0), lowpassFilter, stats, methods
@@ -12,9 +12,9 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 NeedsCompilation: no
-Packaged: 2020-08-24 10:57:30 UTC; fpein
+Packaged: 2022-01-27 11:33:36 UTC; pein
 Author: Pein Florian [aut, cre],
   Timo Aspelmeier [ctb]
-Maintainer: Pein Florian <fp366@cam.ac.uk>
+Maintainer: Pein Florian <f.pein@lancaster.ac.uk>
 Repository: CRAN
-Date/Publication: 2020-08-25 12:10:03 UTC
+Date/Publication: 2022-01-27 23:10:06 UTC
