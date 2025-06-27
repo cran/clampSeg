@@ -2,7 +2,7 @@
 \alias{improveSmallScales}
 
 \title{Improves small scales}
-\description{Implements the second and third step of \acronym{HILDE} (\cite{Pein et al.}, 2020). It refines an initial fit, e.g. obtained by \code{\link{jsmurf}} on small temporal scales by testing for events and local deconvolution. Refinment can be done assuming homogeneous noise, but also allow heterogeneous noise. Please see the argument \code{method} and the \cite{examples} for how to access the function correctly depending on whether homogeneous noise is assumed or heterogeneous noise is allowed. Further details about how to decide whether the noise is homogeneous or heterogeneous and whether events are short are given in the accompanying vignette.\cr
+\description{Implements the second and third step of \acronym{HILDE} (\cite{Pein et al.}, 2021). It refines an initial fit, e.g. obtained by \code{\link{jsmurf}} on small temporal scales by testing for events and local deconvolution. Refinment can be done assuming homogeneous noise, but also allow heterogeneous noise. Please see the argument \code{method} and the \cite{examples} for how to access the function correctly depending on whether homogeneous noise is assumed or heterogeneous noise is allowed. Further details about how to decide whether the noise is homogeneous or heterogeneous and whether events are short are given in the accompanying vignette.\cr
 If \code{q == NULL} a Monte-Carlo simulation is required for computing critical values. Since a Monte-Carlo simulation lasts potentially much longer (up to several hours or days if the number of observations is in the millions) than the main calculations, the package saves them by default in the workspace and on the file system such that a second call requiring the same Monte-Carlo simulation will be much faster. For more details, in particular to which arguments the Monte-Carlo simulations are specific, see Section \cite{Storing of Monte-Carlo simulations} below. Progress of a Monte-Carlo simulation can be reported by the argument \code{messages} and the saving can be controlled by the argument \code{option}, both can be specified in \code{\dots} and are explained in \code{\link{getCritVal}}.
 }
 
@@ -22,7 +22,7 @@ improveSmallScales(fit, data, filter, method = c("2Param", "LR"),
 }
 
 \arguments{
-\item{fit}{an \code{\link{stepblock}} object or a list containing an entry \code{fit} with a \code{\link{stepblock}} object giving the initial fit (reconstruction), e.g. computed by \code{\link{jsmurf}} with \code{locationCorrection == "none"}}
+\item{fit}{an \code{\link[stepR]{stepblock}} object or a list containing an entry \code{fit} with a \code{\link[stepR]{stepblock}} object giving the initial fit (reconstruction), e.g. computed by \code{\link{jsmurf}} with \code{locationCorrection == "none"}}
 \item{data}{a numeric vector containing the recorded data points}
 \item{filter}{an object of class \code{\link{lowpassFilter}} giving the used analogue lowpass filter}
 \item{method}{the testing method for short events, \code{"2Param"} allows for heterogeneous noise, \code{"LR"} assumes homogeneous noise}
@@ -45,7 +45,7 @@ improveSmallScales(fit, data, filter, method = c("2Param", "LR"),
 }
 
 \value{
-The idealisation (fit, regression) obtained by testing for short events and local deconvolution. If \code{output == "onlyIdealization"} an object of class \code{\link{stepblock}} containing the final idealisation obtained by local deconvolution. If \code{output == "everyGrid"} a \code{\link{list}} of length \code{length(gridSize)} containing the idealisation after each refining step. Additionally, in both cases, an \code{\link[=attributes]{attribute}} \code{"noDeconvolution"}, an integer vector, gives the segments for which no deconvolution could be performed, since two short segments followed each other, see \cite{details}. Moreover, the (computed) \code{q} is returned as an \code{\link[=attributes]{attribute}}.
+The idealisation (fit, regression) obtained by testing for short events and local deconvolution. If \code{output == "onlyIdealization"} an object of class \code{\link[stepR]{stepblock}} containing the final idealisation obtained by local deconvolution. If \code{output == "everyGrid"} a \code{\link{list}} of length \code{length(gridSize)} containing the idealisation after each refining step. Additionally, in both cases, an \code{\link[=attributes]{attribute}} \code{"noDeconvolution"}, an integer vector, gives the segments for which no deconvolution could be performed, since two short segments followed each other, see \cite{details}. Moreover, the (computed) \code{q} is returned as an \code{\link[=attributes]{attribute}}.
 }
 
 \details{
@@ -71,7 +71,7 @@ If \code{q == NULL} a Monte-Carlo simulation is required to compute the critical
 
 \encoding{utf8}
 \references{
-Pein, F., Bartsch, A., Steinem, C., Munk, A. (2020) Heterogeneous Idealization of Ion Channel Recordings - Open Channel Noise. \emph{arXiv}:2008.02658.
+Pein, F., Bartsch, A., Steinem, C., Munk, A. (2021) Heterogeneous Idealization of Ion Channel Recordings - Open Channel Noise. \emph{IEEE Transactions on NanoBioscience} \bold{20}(1), 57--78.
 
 Pein, F., Tecuapetla-Gómez, I., \enc{Schütte}{Schuette}, O., Steinem, C., Munk, A. (2018) Fully-automatic multiresolution idealization for filtered ion channel recordings: flickering event detection. \emph{IEEE Transactions on NanoBioscience} \bold{17}(3), 300--320.
 }

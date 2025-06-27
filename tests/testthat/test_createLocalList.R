@@ -121,9 +121,9 @@ test_that("method is tested and works", {
   testlocalList <- createLocalList(filter = testfilter, lengths = testlengths)
   expect_error(stepR::computeStat(testy, family = "LR", filter = testfilter, lengths = testlengths,
                                   localList = testlocalList))
-  expect_identical(stepR::computeStat(testy, family = "2Param", filter = testfilter, lengths = testlengths),
-                   stepR::computeStat(testy, family = "2Param", filter = testfilter, lengths = testlengths,
-                                      localList = testlocalList))
+  expect_identical(suppressWarnings(stepR::computeStat(testy, family = "2Param", filter = testfilter, lengths = testlengths)),
+                   suppressWarnings(stepR::computeStat(testy, family = "2Param", filter = testfilter, lengths = testlengths,
+                                      localList = testlocalList)))
 })
 
 test_that("lengths is tested and works", {
@@ -305,3 +305,4 @@ test_that("it is compatibel with other arguments when passed to stepR functions"
                               options = list(simulation = "matrix", save = list(), load = list()),
                               output = "vector", localList = testlocalList))
 })
+

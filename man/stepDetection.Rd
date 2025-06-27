@@ -18,14 +18,14 @@ stepDetection(data, filter, q = NULL, alpha = 0.05, sd = NULL, startTime = 0,
 \item{filter}{an object of class \code{\link{lowpassFilter}} giving the used analogue lowpass filter}
 \item{q}{a single numeric giving the critical value q in (\cite{Pein et al.}, 2018, (7)), by default chosen automatically by \code{\link{getCritVal}}}
 \item{alpha}{a probability, i.e. a single numeric between 0 and 1, giving the significance level to compute the critical value \code{q} (if \code{q == NULL}), see \code{\link{getCritVal}}. Its choice is a trade-off between data fit and parsimony of the estimator. In other words, this argument balances the risks of missing changes and detecting additional artefacts}
-\item{sd}{a single positive numeric giving the standard deviation (noise level) \eqn{\sigma_0}{sigma0} of the data points before filtering, by default (NULL) estimated by \code{\link{sdrobnorm}} with \code{lag = filter$len + 1L}}
+\item{sd}{a single positive numeric giving the standard deviation (noise level) \eqn{\sigma_0}{sigma0} of the data points before filtering, by default (NULL) estimated by \code{\link[stepR]{sdrobnorm}} with \code{lag = filter$len + 1L}}
 \item{startTime}{a single numeric giving the time at which recording (sampling) of \code{data} started, sampling time points will be assumed to be \code{startTime + seq(along = data) / filter$sr}}
 \item{output}{a string specifying the return type, see \cite{Value}}
 \item{...}{additional parameters to be passed to \code{\link{getCritVal}}. \code{\link{getCritVal}} will be called automatically (if \code{q == NULL}), the number of data points \code{n = length(data)} will be set, the \code{family = "jules"} will be set and \code{alpha} and \code{filter} will be passed. For these parameter no user interaction is required and possible, all other parameters of \code{\link{getCritVal}} can be passed additionally}
 }
 
 \value{
-The reconstruction (fit) obtained by the detection step of \acronym{JULES}. If \code{output == "onlyFit"} an object object of class \code{\link{stepblock}} containing the fit. If \code{output == "everything"} a \code{\link{list}} containing the entries \code{fit} with the fit, \code{stepfit} with the fit before postfiltering, \code{q} with the given / computed critical value, \code{filter} with the given filter and \code{sd} with the given / estimated standard deviation.
+The reconstruction (fit) obtained by the detection step of \acronym{JULES}. If \code{output == "onlyFit"} an object object of class \code{\link[stepR]{stepblock}} containing the fit. If \code{output == "everything"} a \code{\link{list}} containing the entries \code{fit} with the fit, \code{stepfit} with the fit before postfiltering, \code{q} with the given / computed critical value, \code{filter} with the given filter and \code{sd} with the given / estimated standard deviation.
 }
 
 \section{Storing of Monte-Carlo simulations}{

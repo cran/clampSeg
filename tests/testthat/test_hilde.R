@@ -45,15 +45,15 @@ test_that("output is tested and works", {
                               shift = 0.5)
   testq <- getCritVal(n = length(testdata), filter = testfilter, family = "jsmurfPS")
   
-  expect_error(hilde(family = "jsmurfPS", data = testdata, filter = testfilter, q1 = testq, q2 = rep(25, 20), output = 1))
-  expect_error(hilde(family = "jsmurfPS", data = testdata, filter = testfilter, q1 = testq, q2 = rep(25, 20),
-                     output = c("only", "every")))
-  expect_error(hilde(family = "jsmurfPS", data = testdata, filter = testfilter, q1 = testq,
-                     q2 = rep(25, 20), output = "aha"))
-  expect_identical(hilde(family = "jsmurfPS", data = testdata, filter = testfilter, q1 = testq,
-                         suppressWarningNoDeconvolution = TRUE, lengths = 1:20, q2 = rep(25, 20)),
-                   hilde(family = "jsmurfPS", data = testdata, filter = testfilter, q1 = testq,
-                         output = "only", suppressWarningNoDeconvolution = TRUE, lengths = 1:20, q2 = rep(25, 20)))
+  expect_error(suppressWarnings(hilde(family = "jsmurfPS", data = testdata, filter = testfilter, q1 = testq, q2 = rep(25, 20), output = 1)))
+  expect_error(suppressWarnings(hilde(family = "jsmurfPS", data = testdata, filter = testfilter, q1 = testq, q2 = rep(25, 20),
+                     output = c("only", "every"))))
+  expect_error(suppressWarnings(hilde(family = "jsmurfPS", data = testdata, filter = testfilter, q1 = testq,
+                     q2 = rep(25, 20), output = "aha")))
+  expect_identical(suppressWarnings(hilde(family = "jsmurfPS", data = testdata, filter = testfilter, q1 = testq,
+                         suppressWarningNoDeconvolution = TRUE, lengths = 1:20, q2 = rep(25, 20))),
+                   suppressWarnings(hilde(family = "jsmurfPS", data = testdata, filter = testfilter, q1 = testq,
+                         output = "only", suppressWarningNoDeconvolution = TRUE, lengths = 1:20, q2 = rep(25, 20))))
   
   expect_identical(hilde(family = "jsmurfPS", data = testdata, filter = testfilter, q1 = testq, method = "LR",
                          lengths = 1:20, q2 = rep(25, 20), suppressWarningNoDeconvolution = TRUE),

@@ -1,3 +1,15 @@
+2025-06-26 Florian Pein, version 1.2-0
+
+  * added author (year) to description file
+
+2025-06-20 Florian Pein, version 1.2-0
+
+  * added suppressWarnings to tests where necessary
+  
+  * added several missing package anchors to man files
+  
+  * replaced arxiv reference by journal reference
+
 2022-01-27 Florian Pein, version 1.1-1
 
   * new maintainer email adress

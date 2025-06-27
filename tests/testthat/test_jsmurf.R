@@ -360,8 +360,8 @@ test_that("argument filter works and is tested", {
                                      data = testdata, filter = testfilter,
                                      suppressWarningNoDeconvolution = TRUE, startTime = 0))
   
-  testfilter <- lowpassFilter(type = "bessel", param = list(pole = 3L, cutoff = 0.05), sr = 2143, len = 3L,
-                              shift = 0.2)
+  testfilter <- suppressWarnings(lowpassFilter(type = "bessel", param = list(pole = 3L, cutoff = 0.05), sr = 2143, len = 3L,
+                              shift = 0.2))
   testq <- getCritVal(n = length(testdata), filter = testfilter, family = "jsmurfPS")
   expect_identical(jsmurf(family = "jsmurfPS", data = testdata, filter = testfilter, q = testq, sd = testsd,
                           suppressWarningNoDeconvolution = TRUE, startTime = 0),
@@ -521,9 +521,9 @@ test_that("argument ... works and is tested", {
   testdata <- .convolve(testdata, testfilter)
   teststat <- stepR::monteCarloSimulation(n = 215, r = 100, family = "mDependentPS", filter = testfilter)
   
-  expect_error(jsmurf(family = "jsmurfPS", data = testdata, filter = testfilter, stat = teststat, family = "gauss"))
-  expect_error(jsmurf(family = "jsmurfPS", data = testdata, filter = testfilter, stat = teststat, intervalSystem = "all"))
-  expect_error(jsmurf(family = "jsmurfPS", data = testdata, filter = testfilter, stat = teststat, neuv = "1"))
+  expect_error(suppressWarnings(jsmurf(family = "jsmurfPS", data = testdata, filter = testfilter, stat = teststat, family = "gauss")))
+  expect_error(suppressWarnings(jsmurf(family = "jsmurfPS", data = testdata, filter = testfilter, stat = teststat, intervalSystem = "all")))
+  expect_error(suppressWarnings(jsmurf(family = "jsmurfPS", data = testdata, filter = testfilter, stat = teststat, neuv = "1")))
   expect_error(jsmurf(family = "jsmurfPS", data = testdata, filter = testfilter, stat = teststat, n = 215))
   
   expect_error(jsmurf(family = "jsmurfPS", data = testdata, filter = testfilter, stat = rnorm(100)))
@@ -1020,8 +1020,8 @@ test_that("argument ... works and is tested", {
   teststat <- stepR::monteCarloSimulation(n = 215, r = 100, family = "hjsmurf", filter = testfilter)
   
   expect_error(jsmurf(family = "hjsmurf", data = testdata, filter = testfilter, stat = teststat, family = "gauss"))
-  expect_error(jsmurf(family = "hjsmurf", data = testdata, filter = testfilter, stat = teststat, intervalSystem = "all"))
-  expect_error(jsmurf(family = "hjsmurf", data = testdata, filter = testfilter, stat = teststat, neuv = "1"))
+  expect_error(suppressWarnings(jsmurf(family = "hjsmurf", data = testdata, filter = testfilter, stat = teststat, intervalSystem = "all")))
+  expect_error(suppressWarnings(jsmurf(family = "hjsmurf", data = testdata, filter = testfilter, stat = teststat, neuv = "1")))
   expect_error(jsmurf(family = "hjsmurf", data = testdata, filter = testfilter, stat = teststat, n = 215))
   expect_warning(jsmurf(family = "hjsmurf", data = testdata, filter = testfilter, stat = teststat, sd = 1))
   
@@ -1223,8 +1223,8 @@ test_that("other families work", {
   teststat <- stepR::monteCarloSimulation(n = 215, r = 100, family = "jsmurf", filter = testfilter)
   
   expect_error(jsmurf(family = "jsmurf", data = testdata, filter = testfilter, stat = teststat, family = "gauss"))
-  expect_error(jsmurf(family = "jsmurf", data = testdata, filter = testfilter, stat = teststat, intervalSystem = "all"))
-  expect_error(jsmurf(family = "jsmurf", data = testdata, filter = testfilter, stat = teststat, neuv = "1"))
+  expect_error(suppressWarnings(jsmurf(family = "jsmurf", data = testdata, filter = testfilter, stat = teststat, intervalSystem = "all")))
+  expect_error(suppressWarnings(jsmurf(family = "jsmurf", data = testdata, filter = testfilter, stat = teststat, neuv = "1")))
   expect_error(jsmurf(family = "jsmurf", data = testdata, filter = testfilter, stat = teststat, n = 215))
   
   expect_identical(suppressMessages(jsmurf(family = "jsmurf", data = testdata, filter = testfilter, r = 100L,

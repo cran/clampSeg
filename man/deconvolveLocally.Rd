@@ -15,7 +15,7 @@ deconvolveLocally(fit, data, filter, startTime = 0, regularization = 1,
 }
 
 \arguments{
-\item{fit}{an \code{\link{stepblock}} object or a list containing an entry \code{fit} with a \code{\link{stepblock}} object giving the initial fit (reconstruction), e.g. computed by \code{\link{stepDetection}}}
+\item{fit}{an \code{\link[stepR]{stepblock}} object or a list containing an entry \code{fit} with a \code{\link[stepR]{stepblock}} object giving the initial fit (reconstruction), e.g. computed by \code{\link{stepDetection}}}
 \item{data}{a numeric vector containing the recorded data points}
 \item{filter}{an object of class \code{\link{lowpassFilter}} giving the used analogue lowpass filter}
 \item{startTime}{a single numeric giving the time at which recording (sampling) of \code{data} started, sampling time points will be assumed to be \code{startTime + seq(along = data) / filter$sr}}
@@ -30,7 +30,7 @@ deconvolveLocally(fit, data, filter, startTime = 0, regularization = 1,
 }
 
 \value{
-The idealisation (fit, regression) obtained by local deconvolution procedure of the estimation step of \acronym{JULES}. If \code{output == "onlyIdealization"} an object of class \code{\link{stepblock}} containing the final idealisation obtained by local deconvolution. If \code{output == "everyGrid"} a \code{\link{list}} of length \code{length(gridSize)} containing the idealisation after each refining step. Additionally, in both cases, an \code{\link[=attributes]{attribute}} \code{"noDeconvolution"}, an integer vector, gives the segments for which no deconvolution could be performed, since two short segments followed each other, see \cite{details}.
+The idealisation (fit, regression) obtained by local deconvolution procedure of the estimation step of \acronym{JULES}. If \code{output == "onlyIdealization"} an object of class \code{\link[stepR]{stepblock}} containing the final idealisation obtained by local deconvolution. If \code{output == "everyGrid"} a \code{\link{list}} of length \code{length(gridSize)} containing the idealisation after each refining step. Additionally, in both cases, an \code{\link[=attributes]{attribute}} \code{"noDeconvolution"}, an integer vector, gives the segments for which no deconvolution could be performed, since two short segments followed each other, see \cite{details}.
 }
 
 \details{

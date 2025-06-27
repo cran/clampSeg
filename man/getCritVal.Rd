@@ -46,7 +46,7 @@ For loading from / saving on the file system \code{\link[R.cache]{loadCache}(key
 }
 
 \subsection{Simulation: options$simulation}{
-Whenever Monte-Carlo simulations have to be performed, i.e. when \code{stat == NULL} and the required Monte-Carlo simulation could not be loaded, the type specified in \code{options$simulation} will be simulated by \code{\link{monteCarloSimulation}}. In other words, \code{options$simulation} must be a single string of the following: \code{"vector"}, \code{"vectorIncreased"}, \code{"matrix"} or \code{"matrixIncreased"}. By default (\code{options$simulation == NULL}), an object of class \code{"MCSimulationVector"} for \code{nq} observations will be simulated, i.e. \code{options$simulation} \code{== "matrixIncreased"}. For this choice please recall the explanations regarding computation time and flexibility at the beginning of this section.
+Whenever Monte-Carlo simulations have to be performed, i.e. when \code{stat == NULL} and the required Monte-Carlo simulation could not be loaded, the type specified in \code{options$simulation} will be simulated by \code{\link[stepR]{monteCarloSimulation}}. In other words, \code{options$simulation} must be a single string of the following: \code{"vector"}, \code{"vectorIncreased"}, \code{"matrix"} or \code{"matrixIncreased"}. By default (\code{options$simulation == NULL}), an object of class \code{"MCSimulationVector"} for \code{nq} observations will be simulated, i.e. \code{options$simulation} \code{== "matrixIncreased"}. For this choice please recall the explanations regarding computation time and flexibility at the beginning of this section.
 }
 
 \subsection{Loading: options$load}{
@@ -85,7 +85,7 @@ Simulations can be removed from the workspace by removing the variable \code{cri
 
 \encoding{utf8}
 \references{
-Pein, F., Bartsch, A., Steinem, C., Munk, A. (2020) Heterogeneous Idealization of Ion Channel Recordings - Open Channel Noise. \emph{arXiv}:2008.02658.
+Pein, F., Bartsch, A., Steinem, C., Munk, A. (2021) Heterogeneous Idealization of Ion Channel Recordings - Open Channel Noise. \emph{IEEE Transactions on NanoBioscience} \bold{20}(1), 57--78.
 
 Pein, F., Tecuapetla-Gómez, I., \enc{Schütte}{Schuette}, O., Steinem, C., Munk, A. (2018) Fully-automatic multiresolution idealization for filtered ion channel recordings: flickering event detection. \emph{IEEE Transactions on NanoBioscience} \bold{17}(3), 300--320.
 

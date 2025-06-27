@@ -423,6 +423,7 @@ test_that("a single detected peak is deconvolved correctly", {
   
   stat <- statAll(y = testdata, filter = testfilter, fit = comparefit,
                   singleStat = singleStat2Param, len = 3, add = integer(0))
+  expect_length(stat, 200)
 
   if (all(diff(which(stat > 40)) == 1)) {
     li <- which.max(stat)
@@ -640,6 +641,7 @@ test_that("a single jump close to a detected peak is handled correctly", {
   
   stat <- statAll(y = testdata, filter = testfilter, fit = comparefit,
                   singleStat = singleStat2Param, len = 3, add = integer(0))
+  expect_length(stat, 200)
   
   if (all(diff(which(stat > 40)) == 1)) {
     li <- which.max(stat)

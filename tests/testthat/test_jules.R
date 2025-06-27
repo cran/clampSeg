@@ -239,8 +239,8 @@ test_that("argument filter works and is tested", {
                                      data = testdata, filter = testfilter,
                                      suppressWarningNoDeconvolution = TRUE, startTime = 0))
   
-  testfilter <- lowpassFilter(type = "bessel", param = list(pole = 3L, cutoff = 0.05), sr = 2143, len = 3L,
-                              shift = 0.2)
+  testfilter <- suppressWarnings(lowpassFilter(type = "bessel", param = list(pole = 3L, cutoff = 0.05), sr = 2143, len = 3L,
+                                               shift = 0.2))
   expect_identical(jules(data = testdata, filter = testfilter, q = testq, sd = testsd,
                          suppressWarningNoDeconvolution = TRUE, startTime = 0),
                    deconvolveLocally(fit = stepDetection(data = testdata, filter = testfilter, q = testq,
@@ -273,8 +273,8 @@ test_that("argument sd works and is tested", {
   expect_error(jules(data = testdata, filter = testfilter, sd = -1, q = testq))
   
   estsd <- stepR::sdrobnorm(testdata, lag = 9L)
-  expect_identical(jules(data = testdata, filter = testfilter, q = testq),
-                   jules(data = testdata, filter = testfilter, sd = estsd, q = testq))
+  expect_identical(suppressWarnings(jules(data = testdata, filter = testfilter, q = testq)),
+                   suppressWarnings(jules(data = testdata, filter = testfilter, sd = estsd, q = testq)))
 })
 
 test_that("argument q works and is tested", {
@@ -393,8 +393,8 @@ test_that("argument ... works and is tested", {
   teststat <- stepR::monteCarloSimulation(n = 215, r = 100, family = "mDependentPS", filter = testfilter)
   
   expect_error(jules(data = testdata, filter = testfilter, stat = teststat, family = "gauss"))
-  expect_error(jules(data = testdata, filter = testfilter, stat = teststat, intervalSystem = "all"))
-  expect_error(jules(data = testdata, filter = testfilter, stat = teststat, neuv = "1"))
+  expect_error(suppressWarnings(jules(data = testdata, filter = testfilter, stat = teststat, intervalSystem = "all")))
+  expect_error(suppressWarnings(jules(data = testdata, filter = testfilter, stat = teststat, neuv = "1")))
   expect_error(jules(data = testdata, filter = testfilter, stat = teststat, n = 215))
   
   expect_error(jules(data = testdata, filter = testfilter, stat = rnorm(100)))
@@ -424,14 +424,14 @@ test_that("argument ... works and is tested", {
                          options = list(load = list())),
                    jules(data = testdata, filter = testfilter, r = 100, output = "every",
                          options = list(load = list()), nq = 215L))
-  expect_identical(jules(data = testdata, filter = testfilter, r = 100, output = "every",
-                         options = list(load = list()), nq = 300),
-                   jules(data = testdata, filter = testfilter, r = 100, output = "every",
-                         options = list(load = list()), nq = 300L))
-  expect_identical(jules(data = testdata, filter = testfilter, r = 100, output = "every",
-                         options = list(load = list()), nq = 300.5),
-                   jules(data = testdata, filter = testfilter, r = 100, output = "every",
-                         options = list(load = list()), nq = 300L))
+  expect_identical(suppressWarnings(jules(data = testdata, filter = testfilter, r = 100, output = "every",
+                         options = list(load = list()), nq = 300)),
+                         suppressWarnings(jules(data = testdata, filter = testfilter, r = 100, output = "every",
+                         options = list(load = list()), nq = 300L)))
+  expect_identical(suppressWarnings(jules(data = testdata, filter = testfilter, r = 100, output = "every",
+                         options = list(load = list()), nq = 300.5)),
+                   suppressWarnings(jules(data = testdata, filter = testfilter, r = 100, output = "every",
+                         options = list(load = list()), nq = 300L)))
   
   expect_error(jules(data = testdata, filter = testfilter, options = "vector"))
   expect_error(jules(data = testdata, filter = testfilter, options = list(a = "vector")))
@@ -633,3 +633,4 @@ test_that("additional arguments for deconvolveLocally", {
                                      thresholdLongSegment = 12, localEstimate = median, gridSize = c(1, 0.5),
                                      windowFactorRefinement = c(0.1)))
 })
+

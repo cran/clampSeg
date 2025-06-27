@@ -322,8 +322,8 @@ test_that("argument startTime works and is tested", {
 
 test_that("argument filter works and is tested", {
   testdata <- c(rnorm(105, 0), rnorm(5, 10), rnorm(5, 20), rnorm(5, 30), rnorm(100, 40))
-  testfilter <- lowpassFilter(type = "bessel", param = list(pole = 5L, cutoff = 0.01), sr = 1, len = 5L,
-                              shift = 0)
+  testfilter <- suppressWarnings(lowpassFilter(type = "bessel", param = list(pole = 5L, cutoff = 0.01), sr = 1, len = 5L,
+                              shift = 0))
   testdata <- .convolve(testdata, testfilter)
   testsd <- 1
   testq <- 1

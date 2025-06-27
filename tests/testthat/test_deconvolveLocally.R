@@ -556,8 +556,8 @@ test_that("a single jump and a non deconvolvable segment are handled correctly",
   attr(compare, "noDeconvolution") <- 3L
   attr(compare3, "noDeconvolution") <- 3L
   
-  ret <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata)
-  retall <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata, output = "everyGrid")
+  suppressWarnings(ret <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata))
+  suppressWarnings(retall <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata, output = "everyGrid"))
   
   test <- retall[[3]]
   attr(test, "noDeconvolution") <- 3L
@@ -601,8 +601,8 @@ test_that("a single peak and a non deconvolvable segment are handled correctly",
   attr(compare, "noDeconvolution") <- 4L
   attr(compare3, "noDeconvolution") <- 4L
   
-  ret <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata)
-  retall <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata, output = "everyGrid")
+  suppressWarnings(ret <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata))
+  suppressWarnings(retall <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata, output = "everyGrid"))
   
   test <- retall[[3]]
   attr(test, "noDeconvolution") <- 4L
@@ -638,8 +638,8 @@ test_that("a non deconvolvable segment and a single jump are handled correctly",
   attr(compare, "noDeconvolution") <- 1L
   attr(compare3, "noDeconvolution") <- 1L
   
-  ret <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata)
-  retall <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata, output = "everyGrid")
+  suppressWarnings(ret <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata))
+  suppressWarnings(retall <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata, output = "everyGrid"))
   
   test <- retall[[3]]
   attr(test, "noDeconvolution") <- 1L
@@ -680,8 +680,8 @@ test_that("a non deconvolvable segment and a single peak are handled correctly",
   attr(compare, "noDeconvolution") <- 1L
   attr(compare3, "noDeconvolution") <- 1L
   
-  ret <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata)
-  retall <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata, output = "everyGrid")
+  suppressWarnings(ret <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata))
+  suppressWarnings(retall <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata, output = "everyGrid"))
   
   test <- retall[[3]]
   attr(test, "noDeconvolution") <- 1L
@@ -933,9 +933,9 @@ test_that("argument regularization is tested and works", {
                                  regularization = list(1, 2, as.numeric(NA))))
   expect_error(deconvolveLocally(fit = testfit, filter = testfilter, data = testdata,
                                  regularization = c(2, 1.5, 1.25), suppressWarningNoDeconvolution = TRUE))
-  expect_identical(deconvolveLocally(fit = testfit, filter = testfilter, data = testdata),
-                   deconvolveLocally(fit = testfit, filter = testfilter, data = testdata,
-                                     regularization = 1))
+  expect_identical(suppressWarnings(deconvolveLocally(fit = testfit, filter = testfilter, data = testdata)),
+                   suppressWarnings(deconvolveLocally(fit = testfit, filter = testfilter, data = testdata,
+                                                      regularization = 1)))
   
   # regularization <- 2
   testfit <- stepR::stepblock(leftEnd = c(0, 100, 200, 203, 300, 303, 306, 307, 400, 403),
@@ -1143,12 +1143,12 @@ test_that("argument regularization is tested and works", {
   attr(compare, "noDeconvolution") <- c(5L, 6L, 7L)
   attr(compare3, "noDeconvolution") <- c(5L, 6L, 7L)
   
-  ret <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata,
-                           suppressWarningNoDeconvolution = TRUE,
-                           regularization = list(c(3), c(2, 1), c(2, 1, 0.5)))
-  retall <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata, output = "everyGrid",
-                              suppressWarningNoDeconvolution = TRUE,
-                              regularization = list(c(3), c(2, 1), c(2, 1, 0.5)))
+  suppressWarnings(ret <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata,
+                                            suppressWarningNoDeconvolution = TRUE,
+                                            regularization = list(c(3), c(2, 1), c(2, 1, 0.5))))
+  suppressWarnings(retall <- deconvolveLocally(fit = testfit, filter = testfilter, data = testdata, output = "everyGrid",
+                                               suppressWarningNoDeconvolution = TRUE,
+                                               regularization = list(c(3), c(2, 1), c(2, 1, 0.5))))
   
   test <- retall[[3]]
   attr(test, "noDeconvolution") <- c(5L, 6L, 7L)

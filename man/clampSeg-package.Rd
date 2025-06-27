@@ -5,7 +5,7 @@
 
 \title{Idealisation of Patch Clamp Recordings}
 
-\description{Implements the model-free multiscale idealisation approaches: \bold{J}ump-\bold{S}egmentation by \bold{MU}ltiResolution \bold{F}ilter (\acronym{JSMURF}) (\cite{Hotz et al.}, 2013), \bold{JU}mp \bold{L}ocal d\bold{E}convolution \bold{S}egmentation (\acronym{JULES}) filter (\cite{Pein et al.}, 2018) and \bold{H}eterogeneous \bold{I}dealization by \bold{L}ocal testing and \bold{DE}convolution (\acronym{HILDE}) (\cite{Pein et al.}, 2020). These methods combine multiscale testing with deconvolution to idealise patch clamp recordings. They allow to deal with subconductance states and flickering. Further details are given in the accompanying vignette.}
+\description{Implements the model-free multiscale idealisation approaches: \bold{J}ump-\bold{S}egmentation by \bold{MU}ltiResolution \bold{F}ilter (\acronym{JSMURF}) (\cite{Hotz et al.}, 2013), \bold{JU}mp \bold{L}ocal d\bold{E}convolution \bold{S}egmentation (\acronym{JULES}) filter (\cite{Pein et al.}, 2018) and \bold{H}eterogeneous \bold{I}dealization by \bold{L}ocal testing and \bold{DE}convolution (\acronym{HILDE}) (\cite{Pein et al.}, 2021). These methods combine multiscale testing with deconvolution to idealise patch clamp recordings. They allow to deal with subconductance states and flickering. Further details are given in the accompanying vignette.}
 
 \details{
 The main functions are \code{\link{jsmurf}}, \code{\link{jules}} and \code{\link{hilde}} which implement \acronym{JSMURF}, \acronym{JULES} and \acronym{HILDE}, respectively. \acronym{JSMURF} is the most simplest and fastest approach. If short events (flickering) occurs,  \acronym{JULES} or \acronym{HILDE} should be used instead. All three methods can assume homogeneous noise, but \acronym{JSMURF} and \acronym{HILDE} have options to allow for heterogeneous noise. Further details on when which method is suitable and on how to use them are given in Section II in the vignette.\cr
@@ -18,7 +18,7 @@ The detection and estimation step of \acronym{JULES} can be obtained separately 
 
 \encoding{utf8}
 \references{
-Pein, F., Bartsch, A., Steinem, C., Munk, A. (2020) Heterogeneous Idealization of Ion Channel Recordings - Open Channel Noise. \emph{arXiv}:2008.02658.
+Pein, F., Bartsch, A., Steinem, C., Munk, A. (2021) Heterogeneous Idealization of Ion Channel Recordings - Open Channel Noise. \emph{IEEE Transactions on NanoBioscience} \bold{20}(1), 57--78.
 
 Pein, F., Tecuapetla-Gómez, I., \enc{Schütte}{Schuette}, O., Steinem, C., Munk, A. (2018) Fully-automatic multiresolution idealization for filtered ion channel recordings: flickering event detection. \emph{IEEE Transactions on NanoBioscience} \bold{17}(3), 300--320.
 

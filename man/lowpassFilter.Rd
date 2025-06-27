@@ -43,7 +43,7 @@ An object of \code{\link{class}} \code{lowpassFilter}, i.e. a \code{\link{list}}
 
 \encoding{utf8}
 \references{
-Pein, F., Bartsch, A., Steinem, C., Munk, A. (2020) Heterogeneous Idealization of Ion Channel Recordings - Open Channel Noise. \emph{arXiv}:2008.02658.
+Pein, F., Bartsch, A., Steinem, C., Munk, A. (2021) Heterogeneous Idealization of Ion Channel Recordings - Open Channel Noise. \emph{IEEE Transactions on NanoBioscience} \bold{20}(1), 57--78.
 
 Pein, F., Tecuapetla-Gómez, I., \enc{Schütte}{Schuette}, O., Steinem, C., Munk, A. (2018) Fully-automatic multiresolution idealization for filtered ion channel recordings: flickering event detection. IEEE Trans. Nanobioscience, 17(3):300-320.
 
