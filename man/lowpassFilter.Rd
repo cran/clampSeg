@@ -57,6 +57,13 @@ ion channel recordings by a jump segmentation multiresolution filter. IEEE Trans
 \author{This function is a modified and extended version of \code{\link[stepR]{dfilter}} written by Thomas Hotz. New code is written by Florian Pein and Inder Tecuapetla-Gómez.}
 
 \examples{
+\dontshow{
+# keep Monte-Carlo simulations inside the session's temporary directory,
+# setting the option before R.cache is loaded avoids that R.cache creates
+# its default cache root in the user's home directory
+savePathRcache <- getOption("R.cache.rootPath")
+options(R.cache.rootPath = file.path(tempdir(), "Rcache"))
+}
 # the filter used for the gramicidin A recordings given by gramA
 filter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 1e3 / 1e4),
                         sr = 1e4)
@@ -80,7 +87,10 @@ abline(v = filter$len / filter$sr, col = "red")
 ## to control whether the correct filter is assumed
 # idealisation by JULES (might take some time if not called somewhere before,
 # please see its documentation for more details)
-idealisation <- jules(gramA, filter = filter, startTime = 9, messages = 100)
+# r = 1e3 instead of the default r = 1e4 is used to reduce the run time,
+# this is okay for illustration purposes, but for precise results
+# the default number of Monte-Carlo simulations is recommended
+idealisation <- jules(gramA, filter = filter, startTime = 9, messages = 100, r = 1e3)
 
 ## zoom into a single jump
 plot(9 + seq(along = gramA) / filter$sr, gramA, pch = 16, col = "grey30",
@@ -102,7 +112,8 @@ wrongFilter <- lowpassFilter(type = "bessel",
                              sr = 1e4)
 # the needed Monte-Carlo simulation depends on the number of observations and the filter
 # hence a new simulation is required (if called for the first time)
-idealisationWrong <- jules(gramA, filter = wrongFilter, startTime = 9, messages = 100)
+idealisationWrong <- jules(gramA, filter = wrongFilter, startTime = 9, messages = 100,
+                           r = 1e3)
 
 # idealisation
 lines(idealisationWrong, col = "orange", lwd = 3)
@@ -134,6 +145,10 @@ points(0:filter$len / filter$sr, filter$kern, col = "blue", pch = 16)
 filter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 1e3 / 1e4),
                         len = 4L)
 points((0:filter$len + 0.5) / filter$sr, filter$kern, col = "darkgreen", pch = 16)
+\dontshow{
+unlink(file.path(tempdir(), "Rcache"), recursive = TRUE, force = TRUE)
+options(R.cache.rootPath = savePathRcache)
+}
 }
 
 \keyword{ts}

@@ -56,6 +56,13 @@ Pein, F., Tecuapetla-Gómez, I., \enc{Schütte}{Schuette}, O., Steinem, C., Munk
 }
 
 \examples{
+\dontshow{
+# keep Monte-Carlo simulations inside the session's temporary directory,
+# setting the option before R.cache is loaded avoids that R.cache creates
+# its default cache root in the user's home directory
+savePathRcache <- getOption("R.cache.rootPath")
+options(R.cache.rootPath = file.path(tempdir(), "Rcache"))
+}
 ## refinement of an initial fit of the gramicidin A recordings given by gramA
 # the used filter
 filter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 1e3 / 1e4),
@@ -148,6 +155,11 @@ deconvolveLocally(fit, data = gramA, filter = filter, startTime = 9,
                   gridSize = c(1 / filter$sr, 1 / 10 / filter$sr),
                   windowFactorRefinement = 2, report = TRUE,
                   suppressWarningNoDeconvolution = TRUE)
-}}
+}
+\dontshow{
+unlink(file.path(tempdir(), "Rcache"), recursive = TRUE, force = TRUE)
+options(R.cache.rootPath = savePathRcache)
+}
+}
 
 \keyword{nonparametric}

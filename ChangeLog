@@ -1,3 +1,54 @@
+2026-10-07 Florian Pein, version 1.3-0
+
+  * examples with \donttest{} code take a few minutes at most instead of up to
+    twenty, requested by CRAN: Monte-Carlo simulations in the examples use
+    fewer repetitions, r = 1e3 for jsmurf, jules and stepDetection and r = 100
+    for the refinement step of hilde and improveSmallScales
+
+  * HILDE allowing heterogeneous noise is only illustrated in hilde.Rd, with
+    a given critical value q2 for the lengths 3, 10 and 25, its Monte-Carlo
+    simulation takes about an hour
+
+  * the examples of jules and hilde define the time points before zooming
+    into a single event, before they plotted the function stats::time
+
+2026-09-30 Florian Pein, version 1.3-0
+
+  * removed the vignette, the package no longer suggests R.rsp and has no
+    vignette builder
+
+  * the documentation refers to Pein, Eltzner, Munk (2021),
+    <doi:10.1007/s00249-021-01506-8>, instead of the vignette; added the paper
+    to the references in jsmurf.Rd, jules.Rd, hilde.Rd, improveSmallScales.Rd
+    and getCritVal.Rd
+
+2026-09-12 Florian Pein, version 1.3-0
+
+  * the vignette is now the authors' version of Pein, Eltzner, Munk (2021),
+    <doi:10.1007/s00249-021-01506-8>, typeset from our own sources
+
+  * it is shipped as a prebuilt PDF ('asis' vignette); the raster panels
+    of the plots are stored with an 8 bit palette instead of 24 bit colour
+
+  * inst/CITATION now cites the paper and no longer reports the year as '????'
+
+  * given and family name of the maintainer were the wrong way round in the
+    DESCRIPTION file, which made the package show up as by 'Pein Florian'
+
+  * added the paper to the references in clampSeg-package.Rd and replaced
+    references to numbered vignette sections by their names
+
+  * updated the description in the DESCRIPTION file
+
+2026-09-07 Florian Pein, version 1.2-1
+
+  * Monte-Carlo simulations in the tests and in the examples are now cached in the
+    session's temporary directory instead of the user's cache directory,
+    fixes the CRAN note about new files in '~/.cache/R/R.cache/stepR'
+
+  * new test file test_cacheLocation.R, ensures that no simulation is cached
+    outside of the temporary directory
+
 2025-06-26 Florian Pein, version 1.2-0
 
   * added author (year) to description file

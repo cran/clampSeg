@@ -40,6 +40,13 @@ Pein, F., Tecuapetla-Gómez, I., \enc{Schütte}{Schuette}, O., Steinem, C., Munk
 }
 
 \examples{
+\dontshow{
+# keep Monte-Carlo simulations inside the session's temporary directory,
+# setting the option before R.cache is loaded avoids that R.cache creates
+# its default cache root in the user's home directory
+savePathRcache <- getOption("R.cache.rootPath")
+options(R.cache.rootPath = file.path(tempdir(), "Rcache"))
+}
 ## fit of the gramicidin A recordings given by gramA
 # the used filter
 filter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 1e3 / 1e4),
@@ -48,26 +55,32 @@ filter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 1e3 / 
 # this call requires a Monte-Carlo simulation (if not performed before)
 # and therefore might last a few minutes,
 # progress of the Monte-Carlo simulation is reported
-fit <- stepDetection(gramA, filter = filter, startTime = 9, messages = 100)
+# to save some time the number of iterations is reduced to r = 1e3
+# hence the critical value is computed with less precision
+# In general, r = 1e3 is enough for a first impression
+# for a detailed analysis the default r = 1e4 is suggested
+fit <- stepDetection(gramA, filter = filter, startTime = 9, messages = 100, r = 1e3)
 
 # this second call should be much faster
-# as the previous Monte-Carlo simulation will be loaded
-stepDetection(gramA, filter = filter, startTime = 9)
+# as the previous Monte-Carlo simulation will be loaded,
+# a simulation is only loaded if it has at least r repetitions,
+# hence the following calls pass r = 1e3, too
+stepDetection(gramA, filter = filter, startTime = 9, r = 1e3)
 
 # much larger significance level alpha for a larger detection power,
 # but also with the risk of detecting additional artefacts
 # in this example much more changes are detected,
 # most of them are probably artefacts, but for instance the event at 11.3699
 # might be an additional small event that was missed before
-stepDetection(gramA, filter = filter, alpha = 0.9, startTime = 9)
+stepDetection(gramA, filter = filter, alpha = 0.9, startTime = 9, r = 1e3)
 
 # getCritVal was called in stepDetection, can be called explicitly
 # for instance outside of a for loop to save computation time
-q <- getCritVal(length(gramA), filter = filter)
+q <- getCritVal(length(gramA), filter = filter, r = 1e3)
 identical(stepDetection(gramA, q = q, filter = filter, startTime = 9), fit)
 
 # more detailed output
-every <- stepDetection(gramA, filter = filter, startTime = 9, output = "every")
+every <- stepDetection(gramA, filter = filter, startTime = 9, output = "every", r = 1e3)
 identical(every$fit, fit)
 identical(every$q, q)
 identical(every$sd, stepR::sdrobnorm(gramA, lag = filter$len + 1L))
@@ -95,12 +108,10 @@ convolvedSignal <- lowpassFilter::getConvolution(ind, fit, filter)
 lines(ind, convolvedSignal, col = "blue", lwd = 3)
 
 
-# Monte-Carlo simulation depend on the number of observations and on the filter
-# hence a simulation is required again (if called for the first time)
-# to save some time the number of iterations is reduced to r = 1e3
-# hence the critical value is computed with less precision
-# In general, r = 1e3 is enough for a first impression
-# for a detailed analysis r = 1e4 is suggested
+# Monte-Carlo simulations depend on the number of observations and on the filter
+# and are only loaded if they have at least r repetitions,
+# hence the simulation from above is loaded here, whereas a call with
+# the default r = 1e4 would require a new simulation
 stepDetection(gramA, filter = filter, startTime = 9, messages = 100L, r = 1e3L)
 
 # simulation for a larger number of observations can be used (nq = 3e4)
@@ -142,7 +153,12 @@ stepDetection(gramA, filter = filter, startTime = 9, stat = stat)
 
 # with given standard deviation
 sd <- stepR::sdrobnorm(gramA, lag = filter$len + 1)
-identical(stepDetection(gramA, filter = filter, startTime = 9, sd = sd), fit)
-}}
+identical(stepDetection(gramA, filter = filter, startTime = 9, sd = sd, r = 1e3), fit)
+}
+\dontshow{
+unlink(file.path(tempdir(), "Rcache"), recursive = TRUE, force = TRUE)
+options(R.cache.rootPath = savePathRcache)
+}
+}
 
 \keyword{nonparametric}

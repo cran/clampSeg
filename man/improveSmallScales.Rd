@@ -2,7 +2,7 @@
 \alias{improveSmallScales}
 
 \title{Improves small scales}
-\description{Implements the second and third step of \acronym{HILDE} (\cite{Pein et al.}, 2021). It refines an initial fit, e.g. obtained by \code{\link{jsmurf}} on small temporal scales by testing for events and local deconvolution. Refinment can be done assuming homogeneous noise, but also allow heterogeneous noise. Please see the argument \code{method} and the \cite{examples} for how to access the function correctly depending on whether homogeneous noise is assumed or heterogeneous noise is allowed. Further details about how to decide whether the noise is homogeneous or heterogeneous and whether events are short are given in the accompanying vignette.\cr
+\description{Implements the second and third step of \acronym{HILDE} (\cite{Pein et al.}, 2021). It refines an initial fit, e.g. obtained by \code{\link{jsmurf}} on small temporal scales by testing for events and local deconvolution. Refinement can be done assuming homogeneous noise, but also allow heterogeneous noise. Please see the argument \code{method} and the \cite{examples} for how to access the function correctly depending on whether homogeneous noise is assumed or heterogeneous noise is allowed. Further details about how to decide whether the noise is homogeneous or heterogeneous and whether events are short are given in (\cite{Pein, Eltzner and Munk}, 2021).\cr
 If \code{q == NULL} a Monte-Carlo simulation is required for computing critical values. Since a Monte-Carlo simulation lasts potentially much longer (up to several hours or days if the number of observations is in the millions) than the main calculations, the package saves them by default in the workspace and on the file system such that a second call requiring the same Monte-Carlo simulation will be much faster. For more details, in particular to which arguments the Monte-Carlo simulations are specific, see Section \cite{Storing of Monte-Carlo simulations} below. Progress of a Monte-Carlo simulation can be reported by the argument \code{messages} and the saving can be controlled by the argument \code{option}, both can be specified in \code{\dots} and are explained in \code{\link{getCritVal}}.
 }
 
@@ -71,12 +71,21 @@ If \code{q == NULL} a Monte-Carlo simulation is required to compute the critical
 
 \encoding{utf8}
 \references{
+Pein, F., Eltzner, B., Munk, A. (2021) Analysis of patchclamp recordings: model-free multiscale methods and software. \emph{European Biophysics Journal} \bold{50}(2), 187--209. \doi{10.1007/s00249-021-01506-8}
+
 Pein, F., Bartsch, A., Steinem, C., Munk, A. (2021) Heterogeneous Idealization of Ion Channel Recordings - Open Channel Noise. \emph{IEEE Transactions on NanoBioscience} \bold{20}(1), 57--78.
 
 Pein, F., Tecuapetla-Gómez, I., \enc{Schütte}{Schuette}, O., Steinem, C., Munk, A. (2018) Fully-automatic multiresolution idealization for filtered ion channel recordings: flickering event detection. \emph{IEEE Transactions on NanoBioscience} \bold{17}(3), 300--320.
 }
 
 \examples{
+\dontshow{
+# keep Monte-Carlo simulations inside the session's temporary directory,
+# setting the option before R.cache is loaded avoids that R.cache creates
+# its default cache root in the user's home directory
+savePathRcache <- getOption("R.cache.rootPath")
+options(R.cache.rootPath = file.path(tempdir(), "Rcache"))
+}
 ## refinement of an initial fit of the gramicidin A recordings given by gramA
 # the used filter
 filter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 1e3 / 1e4),
@@ -91,33 +100,32 @@ fit <- jsmurf(gramA, filter = filter, family = "jsmurfPS", q = 1.775696, startTi
 # this call requires a Monte-Carlo simulation
 # and therefore might last a few minutes,
 # progress of the Monte-Carlo simulation is reported
+# r = 100 instead of the default r = 1e3 is used to reduce the run time,
+# this is okay for illustration purposes, but for precise results
+# the default number of Monte-Carlo simulations is recommended
 deconvolution <- improveSmallScales(fit, data = gramA, method = "LR", filter = filter,
-                                    startTime = 9, messages = 100)
+                                    startTime = 9, messages = 100, r = 100)
 
 # any second call should be much faster
-# as the previous Monte-Carlo simulation will be loaded
+# as the previous Monte-Carlo simulation will be loaded,
+# a simulation is only loaded if it has at least r repetitions,
+# hence the following calls pass r = 100, too
 # return fit after each refinement
 every <- improveSmallScales(fit, data = gramA, method = "LR", filter = filter,
-                            startTime = 9, output = "every")
+                            startTime = 9, output = "every", r = 100)
 deconvolutionEvery <- every[[3]]
 attr(deconvolutionEvery, "noDeconvolution") <- attr(every, "noDeconvolution")
 attr(deconvolutionEvery, "q") <- attr(every, "q")
 identical(deconvolution, deconvolutionEvery)
 
 # identical to a direct idealisation by hilde
+# with the critical value q1 = 1.775696 used for fit above
 compare <- deconvolution
 attr(compare, "q") <- NULL
 identical(hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR",
-                startTime = 9), compare)
+                q1 = 1.775696, startTime = 9, r = 100), compare)
 
-# allowing heterogeneous noise
-fitH <- jsmurf(gramA, filter = filter, family = "hjsmurf", r = 100, startTime = 9,
-               locationCorrection = "none")
-improveSmallScales(fitH, data = gramA, method = "2Param", filter = filter,
-                   startTime = 9, messages = 10, r = 100)
-# r = 100 is used to reduce its run time,
-# this is okay for illustration purposes, but for precise results
-# a larger number of Monte-Carlo simulations is recommend
+# method "2Param" for heterogeneous noise is illustrated in the examples of hilde
 
 
 ## zoom into a single event,
@@ -147,12 +155,12 @@ lines(ind, convolvedSignal, col = "darkgreen", lwd = 3)
 
 # with less regularisation of the correlation matrix
 improveSmallScales(fit, data = gramA, method = "LR", filter = filter,
-                   startTime = 9, messages = 100, regularization = 0.5)
+                   startTime = 9, messages = 100, regularization = 0.5, r = 100)
 
 # with estimation of the level of long segments by the mean
 # but requiring 30 observations for it
 improveSmallScales(fit, data = gramA, method = "LR", filter = filter,
-                   startTime = 9, messages = 100,
+                   startTime = 9, messages = 100, r = 100,
                    localValue = mean, thresholdLongSegment = 30)
 
 # with one refinement step less, but with a larger grid
@@ -160,7 +168,7 @@ improveSmallScales(fit, data = gramA, method = "LR", filter = filter,
 # progress of the deconvolution is reported
 # potential warning for no deconvolution is suppressed
 improveSmallScales(fit, data = gramA, method = "LR", filter = filter,
-                   startTime = 9, messages = 100,
+                   startTime = 9, messages = 100, r = 100,
                    lengths = c(3:5, 8, 11, 16, 20),
                    gridSize = c(1 / filter$sr, 1 / 10 / filter$sr),
                    windowFactorRefinement = 2, report = TRUE,
@@ -170,7 +178,13 @@ improveSmallScales(fit, data = gramA, method = "LR", filter = filter,
 # this saves run time if improveSmallScales (or hilde) is called more than once
 localList <- createLocalList(filter = filter, method = "LR")
 identical(improveSmallScales(fit, data = gramA, method = "LR", filter = filter,
-                             startTime = 9, localList = localList), deconvolution)
-}}
+                             startTime = 9, localList = localList, r = 100),
+          deconvolution)
+}
+\dontshow{
+unlink(file.path(tempdir(), "Rcache"), recursive = TRUE, force = TRUE)
+options(R.cache.rootPath = savePathRcache)
+}
+}
 
 \keyword{nonparametric}

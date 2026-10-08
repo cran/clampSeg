@@ -22,6 +22,13 @@ An object of class \code{"localList"}, contains computed quantities used by \cod
 \seealso{\code{\link{hilde}}, \code{\link{improveSmallScales}}, \code{\link{lowpassFilter}}}
 
 \examples{
+\dontshow{
+# keep Monte-Carlo simulations inside the session's temporary directory,
+# setting the option before R.cache is loaded avoids that R.cache creates
+# its default cache root in the user's home directory
+savePathRcache <- getOption("R.cache.rootPath")
+options(R.cache.rootPath = file.path(tempdir(), "Rcache"))
+}
 # the used filter of the gramicidin A recordings given by gramA
 filter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 1e3 / 1e4),
                         sr = 1e4)
@@ -33,22 +40,25 @@ localList <- createLocalList(filter = filter, method = "LR")
 # this call requires a Monte-Carlo simulation
 # and therefore might last a few minutes,
 # progress of the Monte-Carlo simulation is reported
+# r = 100 instead of the defaults r = 1e4 for q1 and r = 1e3 for q2
+# is used to reduce the run time,
+# this is okay for illustration purposes, but for precise results
+# the default number of Monte-Carlo simulations is recommended
 idealisation <- hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR",
-                      startTime = 9, messages = 10, localList = localList)
+                      startTime = 9, messages = 10, localList = localList, r = 100)
 
 identical(hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR",
-                startTime = 9), idealisation)
+                startTime = 9, r = 100), idealisation)
 
-# HILDE allowing heterogeneous noise, for only few lengths
+# for HILDE allowing heterogeneous noise, here for only few lengths
 localList <- createLocalList(filter = filter, method = "2Param", lengths = c(3, 10, 25))
-
 # localList has to be computed with the same filter, method and lengths
-hilde(gramA, filter = filter, family = "hjsmurf", method = "2Param",
-      startTime = 9, messages = 10, r = 100,
-      lengths = c(3, 10, 25), localList = localList)
-# r = 100 is used to reduce its run time,
-# this is okay for illustration purposes, but for precise results
-# a larger number of Monte-Carlo simulations is recommend
-}}
+# as used in hilde, see the examples of hilde for HILDE allowing heterogeneous noise
+}
+\dontshow{
+unlink(file.path(tempdir(), "Rcache"), recursive = TRUE, force = TRUE)
+options(R.cache.rootPath = savePathRcache)
+}
+}
 
 \keyword{nonparametric}

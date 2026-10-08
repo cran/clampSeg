@@ -2,7 +2,7 @@
 \alias{jsmurf}
 
 \title{JSMURF}
-\description{Implements the \bold{J}ump-\bold{S}egmentation by \bold{MU}ltiResolution \bold{F}ilter (\acronym{JSMURF}) (\cite{Hotz et al.}, 2013). This model-free multiscale idealization approach works well on medium and large temporal scales. If short events (flickering) occurs,  \code{\link{jules}} or \code{\link{hilde}} should be used instead. The original work (\cite{Hotz et al.}, 2013) assumed homogeneous noise, but an extension to heterogeneous noise was provided in (\cite{Pein et al.}, 2021). Please see the argument \code{family} and the \cite{examples} for how to access the function correctly depending on whether homogeneous noise is assumed or heterogeneous noise is allowed. Further details about how to decide whether the noise is homogeneous or heterogeneous and whether events are short are given in the accompanying vignette.\cr
+\description{Implements the \bold{J}ump-\bold{S}egmentation by \bold{MU}ltiResolution \bold{F}ilter (\acronym{JSMURF}) (\cite{Hotz et al.}, 2013). This model-free multiscale idealization approach works well on medium and large temporal scales. If short events (flickering) occurs,  \code{\link{jules}} or \code{\link{hilde}} should be used instead. The original work (\cite{Hotz et al.}, 2013) assumed homogeneous noise, but an extension to heterogeneous noise was provided in (\cite{Pein et al.}, 2021). Please see the argument \code{family} and the \cite{examples} for how to access the function correctly depending on whether homogeneous noise is assumed or heterogeneous noise is allowed. Further details about how to decide whether the noise is homogeneous or heterogeneous and whether events are short are given in (\cite{Pein, Eltzner and Munk}, 2021).\cr
 If \code{q == NULL} a Monte-Carlo simulation is required for computing critical values. Since a Monte-Carlo simulation lasts potentially much longer (up to several hours or days if the number of observations is in the millions) than the main calculations, the package saves them by default in the workspace and on the file system such that a second call requiring the same Monte-Carlo simulation will be much faster. For more details, in particular to which arguments the Monte-Carlo simulations are specific, see Section \cite{Storing of Monte-Carlo simulations} below. Progress of a Monte-Carlo simulation can be reported by the argument \code{messages} and the saving can be controlled by the argument \code{option}, both can be specified in \code{\dots} and are explained in \code{\link{getCritVal}}.
 }
 
@@ -44,6 +44,8 @@ If \code{q == NULL} a Monte-Carlo simulation is required to compute the critical
 
 \encoding{utf8}
 \references{
+Pein, F., Eltzner, B., Munk, A. (2021) Analysis of patchclamp recordings: model-free multiscale methods and software. \emph{European Biophysics Journal} \bold{50}(2), 187--209. \doi{10.1007/s00249-021-01506-8}
+
 Hotz, T., \enc{Schütte}{Schuette}, O., Sieling, H., Polupanow, T., Diederichsen, U., Steinem, C., and Munk, A. (2013) Idealizing ion channel recordings by a jump segmentation multiresolution filter. \emph{IEEE Transactions on NanoBioscience} \bold{12}(4), 376--386.
 
 Pein, F., Bartsch, A., Steinem, C., Munk, A. (2021) Heterogeneous Idealization of Ion Channel Recordings - Open Channel Noise. \emph{IEEE Transactions on NanoBioscience} \bold{20}(1), 57--78.
@@ -52,6 +54,13 @@ Pein, F., Tecuapetla-Gómez, I., \enc{Schütte}{Schuette}, O., Steinem, C., Munk
 }
 
 \examples{
+\dontshow{
+# keep Monte-Carlo simulations inside the session's temporary directory,
+# setting the option before R.cache is loaded avoids that R.cache creates
+# its default cache root in the user's home directory
+savePathRcache <- getOption("R.cache.rootPath")
+options(R.cache.rootPath = file.path(tempdir(), "Rcache"))
+}
 ## idealisation of the gramicidin A recordings given by gramA with jsmurf
 # the used filter
 filter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 1e3 / 1e4),
@@ -61,8 +70,11 @@ filter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 1e3 / 
 # this call requires a Monte-Carlo simulation
 # and therefore might last a few minutes,
 # progress of the Monte-Carlo simulation is reported
+# r = 1e3 instead of the default r = 1e4 is used to reduce the run time,
+# this is okay for illustration purposes, but for precise results
+# the default number of Monte-Carlo simulations is recommended
 idealisation <- jsmurf(gramA, filter = filter, family = "jsmurfPS", 
-                       startTime = 9, messages = 100)
+                       startTime = 9, messages = 100, r = 1e3)
 # detects conductance changes, but misses short events (flickering)
 # if they are not of interest the above idealisation is suitable
 # otherwise JULES should be used instead
@@ -70,32 +82,34 @@ idealisation <- jsmurf(gramA, filter = filter, family = "jsmurfPS",
 # JSMURF allowing heterogeneous noise
 # for illustration, but less appropriate for this dataset
 jsmurf(gramA, filter = filter, family = "hjsmurf", 
-       startTime = 9, messages = 100)
+       startTime = 9, messages = 100, r = 1e3)
 
 # any second call should be much faster
-# as the previous Monte-Carlo simulation will be loaded
+# as the previous Monte-Carlo simulation will be loaded,
+# a simulation is only loaded if it has at least r repetitions,
+# hence the following calls pass r = 1e3, too
 jsmurf(gramA, filter = filter, family = "jsmurfPS", 
-       startTime = 9, messages = 100)
+       startTime = 9, messages = 100, r = 1e3)
 
 # much larger significance level alpha for a larger detection power,
 # but also with the risk of detecting additional artefacts
 # in this example much more changes are detected,
 # most of them are probably artefacts
 jsmurf(gramA, filter = filter, family = "jsmurfPS", 
-       alpha = 0.9, startTime = 9)
+       alpha = 0.9, startTime = 9, r = 1e3)
 
 
 # getCritVal was called in jsmurf, can be called explicitly
 # for instance outside of a for loop to save run time
-q <- getCritVal(length(gramA), filter = filter, family = "jsmurfPS")
+q <- getCritVal(length(gramA), filter = filter, family = "jsmurfPS", r = 1e3)
 identical(jsmurf(gramA, q = q, filter = filter, family = "jsmurfPS",
                  startTime = 9), idealisation)
 
 # more detailed output
 each <-  jsmurf(gramA, filter = filter, family = "jsmurfPS",
-                startTime = 9, output = "each")
+                startTime = 9, output = "each", r = 1e3)
 every <-  jsmurf(gramA, filter = filter, family = "jsmurfPS",
-                 startTime = 9, output = "every")
+                 startTime = 9, output = "every", r = 1e3)
 
 identical(idealisation, each$idealization)
 idealisationEvery <- every$idealization[[3]]
@@ -124,7 +138,7 @@ wrongFilter <- lowpassFilter(type = "bessel",
 # Monte-Carlo simulations are specific the number of observations and the filter
 # hence a new simulation is required (if called for the first time)
 idealisationWrong <- jsmurf(gramA, filter = wrongFilter, family = "jsmurfPS",
-                            startTime = 9, messages = 100)
+                            startTime = 9, messages = 100, r = 1e3)
 
 # idealisation
 lines(idealisationWrong, col = "orange", lwd = 3)
@@ -137,7 +151,8 @@ lines(ind, convolvedSignal, col = "darkgreen", lwd = 3)
 
 # location correction by a constant, almost the same as the local deconvolution
 idealisationConst <- jsmurf(gramA, filter = filter, family = "jsmurfPS",
-                            locationCorrection = "constant", startTime = 9, messages = 100)
+                            locationCorrection = "constant", startTime = 9, messages = 100,
+                            r = 1e3)
 
 # idealisation
 lines(idealisationConst, col = "brown", lwd = 3)
@@ -149,7 +164,8 @@ lines(ind, convolvedSignal, col = "purple", lwd = 3)
 
 # no correction of locations for filter effects, jump location is shifted to the left
 idealisationNone <- jsmurf(gramA, filter = filter, family = "jsmurfPS",
-                           locationCorrection = "none", startTime = 9, messages = 100)
+                           locationCorrection = "none", startTime = 9, messages = 100,
+                           r = 1e3)
 
 # idealisation
 lines(idealisationNone, col = "black", lwd = 3)
@@ -192,7 +208,7 @@ jsmurf(gramA, filter = filter, family = "jsmurfPS", startTime = 9,
 # loaded from the workspace, but no simulations of type "matrix" and
 # "matrixIncreased" on the file system
 jsmurf(gramA[1:1e4], filter = filter, family = "jsmurfPS",
-       startTime = 9, messages = 100,
+       startTime = 9, messages = 100, r = 1e3,
        options = list(load = list(workspace = c("vector", "vectorIncreased")),
                       save = list(workspace = c("vector", "vectorIncreased"))))
 
@@ -205,15 +221,20 @@ jsmurf(gramA, filter = filter, family = "jsmurfPS", startTime = 9, stat = stat)
 # with given standard deviation
 sd <- stepR::sdrobnorm(gramA, lag = filter$len + 1)
 identical(jsmurf(gramA, filter = filter, family = "jsmurfPS", startTime = 9, 
-                 sd = sd), idealisation)
+                 sd = sd, r = 1e3), idealisation)
 
 # with one refinement step less, but with a larger grid
 # progress of the deconvolution is reported
 # potential warning for no deconvolution is suppressed
-jsmurf(gramA, filter = filter, family = "jsmurfPS", startTime = 9, 
+jsmurf(gramA, filter = filter, family = "jsmurfPS", startTime = 9, r = 1e3,
        gridSize = c(1 / filter$sr, 1 / 10 / filter$sr),
        windowFactorRefinement = 2, report = TRUE,
        suppressWarningNoDeconvolution = TRUE)
-}}
+}
+\dontshow{
+unlink(file.path(tempdir(), "Rcache"), recursive = TRUE, force = TRUE)
+options(R.cache.rootPath = savePathRcache)
+}
+}
 
 \keyword{nonparametric}

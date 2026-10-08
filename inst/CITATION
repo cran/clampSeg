@@ -1,5 +1,21 @@
 year <- sub("-.*", "", meta$Date)
+if (length(year) == 0L) year <- sub("-.*", "", meta$Packaged)
+if (length(year) == 0L) year <- format(Sys.Date(), "%Y")
 note <- sprintf("R package version %s", meta$Version)
+
+citHeader("To cite clampSeg in publications use the paper describing the methods and the software; to cite the package itself use the manual entry.")
+
+bibentry(bibtype = "Article",
+         title = "Analysis of patchclamp recordings: model-free multiscale methods and software",
+         author = c(person("Florian", "Pein"),
+                    person("Benjamin", "Eltzner"),
+                    person("Axel", "Munk")),
+         journal = "European Biophysics Journal",
+         year = "2021",
+         volume = "50",
+         number = "2",
+         pages = "187--209",
+         doi = "10.1007/s00249-021-01506-8")
 
 bibentry(bibtype = "Manual",
          title = "{clampSeg}: Idealisation of Patch Clamp Recordings",

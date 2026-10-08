@@ -2,7 +2,7 @@
 \alias{jules}
 
 \title{JULES}
-\description{Implements the \bold{JU}mp \bold{L}ocal d\bold{E}convolution \bold{S}egmentation (\acronym{JULES}) filter (\cite{Pein et al.}, 2018). This non-parametric (model-free) segmentation method combines statistical multiresolution techniques with local deconvolution for idealising patch clamp (ion channel) recordings. In particular, also flickering (events on small time scales) can be detected and idealised which is not possible with common thresholding methods. \acronym{JULES} requires that the underlying noise is homogeneous. If the noise is heterogeneous, \code{\link{hilde}} should be used instead. \code{\link{hilde}} might be also more powerful (but slower) when events are very short. If all events are very long, multiple times the filter length, the simpler approach \code{\link{jsmurf}} is suitable. Further details about how to decide whether the noise is homogeneous or heterogeneous and whether events are short are given in the accompanying vignette.\cr
+\description{Implements the \bold{JU}mp \bold{L}ocal d\bold{E}convolution \bold{S}egmentation (\acronym{JULES}) filter (\cite{Pein et al.}, 2018). This non-parametric (model-free) segmentation method combines statistical multiresolution techniques with local deconvolution for idealising patch clamp (ion channel) recordings. In particular, also flickering (events on small time scales) can be detected and idealised which is not possible with common thresholding methods. \acronym{JULES} requires that the underlying noise is homogeneous. If the noise is heterogeneous, \code{\link{hilde}} should be used instead. \code{\link{hilde}} might be also more powerful (but slower) when events are very short. If all events are very long, multiple times the filter length, the simpler approach \code{\link{jsmurf}} is suitable. Further details about how to decide whether the noise is homogeneous or heterogeneous and whether events are short are given in (\cite{Pein, Eltzner and Munk}, 2021).\cr
 If \code{q == NULL} a Monte-Carlo simulation is required for computing the critical value. Since a Monte-Carlo simulation lasts potentially much longer (up to several hours or days if the number of observations is in the millions) than the main calculations, the package saves them by default in the workspace and on the file system such that a second call requiring the same Monte-Carlo simulation will be much faster. For more details, in particular to which arguments the Monte-Carlo simulations are specific, see Section \cite{Storing of Monte-Carlo simulations} below. Progress of a Monte-Carlo simulation can be reported by the argument \code{messages} and the saving can be controlled by the argument \code{option}, both can be specified in \code{\dots} and are explained in \code{\link{getCritVal}}.
 }
 
@@ -39,10 +39,19 @@ If \code{q == NULL} a Monte-Carlo simulation is required to compute the critical
 
 \encoding{utf8}
 \references{
+Pein, F., Eltzner, B., Munk, A. (2021) Analysis of patchclamp recordings: model-free multiscale methods and software. \emph{European Biophysics Journal} \bold{50}(2), 187--209. \doi{10.1007/s00249-021-01506-8}
+
 Pein, F., Tecuapetla-Gómez, I., \enc{Schütte}{Schuette}, O., Steinem, C., Munk, A. (2018) Fully-automatic multiresolution idealization for filtered ion channel recordings: flickering event detection. \emph{IEEE Transactions on NanoBioscience} \bold{17}(3), 300--320.
 }
 
 \examples{
+\dontshow{
+# keep Monte-Carlo simulations inside the session's temporary directory,
+# setting the option before R.cache is loaded avoids that R.cache creates
+# its default cache root in the user's home directory
+savePathRcache <- getOption("R.cache.rootPath")
+options(R.cache.rootPath = file.path(tempdir(), "Rcache"))
+}
 ## idealisation of the gramicidin A recordings given by gramA with jules
 # the used filter
 filter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 1e3 / 1e4),
@@ -52,32 +61,37 @@ filter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 1e3 / 
 # this call requires a Monte-Carlo simulation
 # and therefore might last a few minutes,
 # progress of the Monte-Carlo simulation is reported
-idealisation <- jules(gramA, filter = filter, startTime = 9, messages = 100)
+# r = 1e3 instead of the default r = 1e4 is used to reduce the run time,
+# this is okay for illustration purposes, but for precise results
+# the default number of Monte-Carlo simulations is recommended
+idealisation <- jules(gramA, filter = filter, startTime = 9, messages = 100, r = 1e3)
 
 # any second call should be much faster
-# as the previous Monte-Carlo simulation will be loaded
-jules(gramA, filter = filter, startTime = 9)
+# as the previous Monte-Carlo simulation will be loaded,
+# a simulation is only loaded if it has at least r repetitions,
+# hence the following calls pass r = 1e3, too
+jules(gramA, filter = filter, startTime = 9, r = 1e3)
 
 # much larger significance level alpha for a larger detection power,
 # but also with the risk of detecting additional artefacts
 # in this example much more changes are detected,
 # most of them are probably artefacts, but for instance the event at 11.36972
 # might be an additional small event that was missed before
-jules(gramA, filter = filter, alpha = 0.9, startTime = 9)
+jules(gramA, filter = filter, alpha = 0.9, startTime = 9, r = 1e3)
 
 # getCritVal was called in jules, can be called explicitly
 # for instance outside of a for loop to save run time
-q <- getCritVal(length(gramA), filter = filter)
+q <- getCritVal(length(gramA), filter = filter, r = 1e3)
 identical(jules(gramA, q = q, filter = filter, startTime = 9), idealisation)
 
 # both steps of JULES can be called separately
-fit <- stepDetection(gramA, filter = filter, startTime = 9)
+fit <- stepDetection(gramA, filter = filter, startTime = 9, r = 1e3)
 identical(deconvolveLocally(fit, data = gramA, filter = filter, startTime = 9),
           idealisation)
 
 # more detailed output
-each <- jules(gramA, filter = filter, startTime = 9, output = "each")
-every <- jules(gramA, filter = filter, startTime = 9, output = "every")
+each <- jules(gramA, filter = filter, startTime = 9, output = "each", r = 1e3)
+every <- jules(gramA, filter = filter, startTime = 9, output = "every", r = 1e3)
 
 identical(idealisation, each$idealization)
 idealisationEvery <- every$idealization[[3]]
@@ -90,6 +104,7 @@ identical(every$fit, fit)
 
 
 ## zoom into a single event, (Pein et al., 2018, Figure 2 lower left panel)
+time <- 9 + seq(along = gramA) / filter$sr # time points
 plot(time, gramA, pch = 16, col = "grey30", ylim = c(20, 50),
      xlim = c(10.40835, 10.4103), ylab = "Conductance in pS", xlab = "Time in s")
 
@@ -132,7 +147,8 @@ wrongFilter <- lowpassFilter(type = "bessel",
                              sr = 1e4)
 # the needed Monte-Carlo simulation depends on the number of observations and the filter
 # hence a new simulation is required (if called for the first time)
-idealisationWrong <- jules(gramA, filter = wrongFilter, startTime = 9, messages = 100)
+idealisationWrong <- jules(gramA, filter = wrongFilter, startTime = 9, messages = 100,
+                           r = 1e3)
 
 # idealisation
 lines(idealisationWrong, col = "orange", lwd = 3)
@@ -170,7 +186,7 @@ jules(gramA, filter = filter, startTime = 9, messages = 100, r = 1e3,
 # only simulations of type "vector" and "vectorInceased" will be saved and
 # loaded from the workspace, but no simulations of type "matrix" and
 # "matrixIncreased" on the file system
-jules(gramA, filter = filter, startTime = 9, messages = 100,
+jules(gramA, filter = filter, startTime = 9, messages = 100, r = 1e3,
       options = list(load = list(workspace = c("vector", "vectorIncreased")),
                      save = list(workspace = c("vector", "vectorIncreased"))))
 
@@ -182,23 +198,28 @@ jules(gramA, filter = filter, startTime = 9, stat = stat)
 
 # with given standard deviation
 sd <- stepR::sdrobnorm(gramA, lag = filter$len + 1)
-identical(jules(gramA, filter = filter, startTime = 9, sd = sd), idealisation)
+identical(jules(gramA, filter = filter, startTime = 9, sd = sd, r = 1e3), idealisation)
 
 # with less regularisation of the correlation matrix
-jules(gramA, filter = filter, startTime = 9, regularization = 0.5)
+jules(gramA, filter = filter, startTime = 9, regularization = 0.5, r = 1e3)
 
 # with estimation of the level of long segments by the mean
 # but requiring 30 observations for it
-jules(gramA, filter = filter, startTime = 9,
+jules(gramA, filter = filter, startTime = 9, r = 1e3,
       localEstimate = mean, thresholdLongSegment = 30)
 
 # with one refinement step less, but with a larger grid
 # progress of the deconvolution is reported
 # potential warning for no deconvolution is suppressed
-jules(gramA, filter = filter, startTime = 9,
+jules(gramA, filter = filter, startTime = 9, r = 1e3,
       gridSize = c(1 / filter$sr, 1 / 10 / filter$sr),
       windowFactorRefinement = 2, report = TRUE,
       suppressWarningNoDeconvolution = TRUE)
-}}
+}
+\dontshow{
+unlink(file.path(tempdir(), "Rcache"), recursive = TRUE, force = TRUE)
+options(R.cache.rootPath = savePathRcache)
+}
+}
 
 \keyword{nonparametric}

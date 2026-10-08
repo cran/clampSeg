@@ -2,7 +2,7 @@
 \alias{hilde}
 
 \title{HILDE}
-\description{Implements the \bold{H}eterogeneous \bold{I}dealization by \bold{L}ocal testing and \bold{DE}convolution (\acronym{HILDE}) filter (\cite{Pein et al.}, 2021). This non-parametric (model-free) segmentation method combines statistical multiresolution techniques with local deconvolution for idealising patch clamp (ion channel) recordings. It is able to idealize short events (flickering) and allows for heterogeneous noise, but is rather slow. Hence, we recommend to use \code{\link{jsmurf}} or \code{\link{jules}} instead if they are suitable as well. Please see the arguments \code{family} and \code{method} as well as the \cite{examples} for how to access the function correctly depending on whether homogeneous is assumed or heterogeneous noise is allowed. \code{hilde} is a combination of \code{\link{jsmurf}} (with \code{locationCorrection == "none"}) and \code{\link{improveSmallScales}}. Further details about how to decide whether the noise is homogeneous or heterogeneous and whether events are short, and hence which method is suitable, are given in the accompanying vignette.\cr
+\description{Implements the \bold{H}eterogeneous \bold{I}dealization by \bold{L}ocal testing and \bold{DE}convolution (\acronym{HILDE}) filter (\cite{Pein et al.}, 2021). This non-parametric (model-free) segmentation method combines statistical multiresolution techniques with local deconvolution for idealising patch clamp (ion channel) recordings. It is able to idealize short events (flickering) and allows for heterogeneous noise, but is rather slow. Hence, we recommend to use \code{\link{jsmurf}} or \code{\link{jules}} instead if they are suitable as well. Please see the arguments \code{family} and \code{method} as well as the \cite{examples} for how to access the function correctly depending on whether homogeneous is assumed or heterogeneous noise is allowed. \code{hilde} is a combination of \code{\link{jsmurf}} (with \code{locationCorrection == "none"}) and \code{\link{improveSmallScales}}. Further details about how to decide whether the noise is homogeneous or heterogeneous and whether events are short, and hence which method is suitable, are given in (\cite{Pein, Eltzner and Munk}, 2021).\cr
 If \code{q1 == NULL} or \code{q2 == NULL} a Monte-Carlo simulation is required for computing the critical values. Since a Monte-Carlo simulation lasts potentially much longer (up to several hours or days if the number of observations is in the millions) than the main calculations, this package saves them by default in the workspace and on the file system such that a second call requiring the same Monte-Carlo simulation will be much faster. For more details, in particular to which arguments the Monte-Carlo simulations are specific, see Section \cite{Storing of Monte-Carlo simulations} below. Progress of a Monte-Carlo simulation can be reported by the argument \code{messages} and the saving can be controlled by the argument \code{option}, both can be specified in \code{\dots} and are explained in \code{\link{getCritVal}}.
 }
 
@@ -46,61 +46,82 @@ If \code{q1 == NULL} or \code{q2 == NULL} a Monte-Carlo simulation is required t
 
 \encoding{utf8}
 \references{
+Pein, F., Eltzner, B., Munk, A. (2021) Analysis of patchclamp recordings: model-free multiscale methods and software. \emph{European Biophysics Journal} \bold{50}(2), 187--209. \doi{10.1007/s00249-021-01506-8}
+
 Pein, F., Bartsch, A., Steinem, C., Munk, A. (2021) Heterogeneous Idealization of Ion Channel Recordings - Open Channel Noise. \emph{IEEE Transactions on NanoBioscience} \bold{20}(1), 57--78.
 
 Hotz, T., \enc{Schütte}{Schuette}, O., Sieling, H., Polupanow, T., Diederichsen, U., Steinem, C., and Munk, A. (2013) Idealizing ion channel recordings by a jump segmentation multiresolution filter. \emph{IEEE Transactions on NanoBioscience} \bold{12}(4), 376--386.
 }
 
 \examples{
+\dontshow{
+# keep Monte-Carlo simulations inside the session's temporary directory,
+# setting the option before R.cache is loaded avoids that R.cache creates
+# its default cache root in the user's home directory
+savePathRcache <- getOption("R.cache.rootPath")
+options(R.cache.rootPath = file.path(tempdir(), "Rcache"))
+}
 ## idealisation of the gramicidin A recordings given by gramA with hilde
 # the used filter
 filter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 1e3 / 1e4),
                         sr = 1e4)
 \donttest{
 # idealisation by HILDE assuming homogeneous noise
-# this call requires a Monte-Carlo simulation
+# this call requires Monte-Carlo simulations for q1 and for q2
 # and therefore might last a few minutes,
-# progress of the Monte-Carlo simulation is reported
+# progress of the Monte-Carlo simulations is reported
+# r = 100 instead of the defaults r = 1e4 for q1 and r = 1e3 for q2
+# is used to reduce the run time,
+# this is okay for illustration purposes, but for precise results
+# the default number of Monte-Carlo simulations is recommended
 idealisation <- hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR",
-                      startTime = 9, messages = 10)
+                      startTime = 9, messages = 10, r = 100)
 
 # any second call should be much faster
-# as the previous Monte-Carlo simulation will be loaded
-hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR", startTime = 9)
+# as the previous Monte-Carlo simulations will be loaded,
+# a simulation is only loaded if it has at least r repetitions,
+# hence the following calls pass r = 100, too
+hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR", startTime = 9,
+      r = 100)
 
 # HILDE allowing heterogeneous noise
+# the Monte-Carlo simulation for q2 is much slower for method "2Param",
+# with the default r = 1e3 it lasts about an hour for these data,
+# hence q2 is given, it was computed by
+# getCritVal(length(gramA), filter = filter, family = "2Param", alpha = 0.04,
+#            lengths = c(3, 10, 25)),
+# to keep q2 short only the lengths 3, 10 and 25 are tested,
+# r = 1e3 instead of the default r = 1e4 reduces the run time of the simulation for q1
 hilde(gramA, filter = filter, family = "hjsmurf", method = "2Param",
-      startTime = 9, messages = 10, r = 100)
-# r = 100 is used to reduce its run time,
-# this is okay for illustration purposes, but for precise results
-# a larger number of Monte-Carlo simulations is recommend
+      startTime = 9, messages = 100, r = 1e3,
+      lengths = c(3, 10, 25), q2 = c(86.776, 107.555, 110.707))
 
 # much larger significance level alpha1 for a larger detection power
 # in the refinement step on small temporal scales,
 # but also with the risk of detecting additional artefacts
 hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR",
-      alpha1 = 0.9, alpha2 = 0.9, startTime = 9)
+      alpha1 = 0.9, alpha2 = 0.9, startTime = 9, r = 100)
 
 # getCritVal was called in hilde, can be called explicitly
 # for instance outside of a for loop to save run time
-q2 <- getCritVal(length(gramA), filter = filter, family = "LR")
+q2 <- getCritVal(length(gramA), filter = filter, family = "LR", r = 100)
 identical(hilde(gramA, filter = filter, family = "jsmurfPS",
-                method = "LR", startTime = 9, q2 = q2), idealisation)
+                method = "LR", startTime = 9, q2 = q2, r = 100), idealisation)
 
 # both steps of HILDE can be called separately
 fit <- jsmurf(gramA, filter = filter, family = "jsmurfPS", alpha = 0.01,
-              startTime = 9, locationCorrection = "none")
+              startTime = 9, locationCorrection = "none", r = 100)
 deconvolution <- improveSmallScales(fit, data = gramA, method = "LR", filter = filter,
-                                    startTime = 9, messages = 100)
+                                    startTime = 9, messages = 100, r = 100)
 attr(deconvolution, "q") <- NULL
 identical(deconvolution, idealisation)
 
 # more detailed output
 each <- hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR",
-              startTime = 9, output = "each")
+              startTime = 9, output = "each", r = 100)
 
 every <- hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR",
-               startTime = 9, output = "every")
+               startTime = 9, output = "every", r = 100)
 
 identical(idealisation, each$idealization)
 idealisationEvery <- every$idealization[[3]]
@@ -114,6 +135,7 @@ identical(every$fit, fit)
 
 ## zoom into a single event
 ## similar to (Pein et al., 2018, Figure 2 lower left panel)
+time <- 9 + seq(along = gramA) / filter$sr # time points
 plot(time, gramA, pch = 16, col = "grey30", ylim = c(20, 50),
      xlim = c(10.40835, 10.4103), ylab = "Conductance in pS", xlab = "Time in s")
 
@@ -157,7 +179,7 @@ wrongFilter <- lowpassFilter(type = "bessel",
 # the needed Monte-Carlo simulation depends on the number of observations and the filter
 # hence a new simulation is required (if called for the first time)
 idealisationWrong <- hilde(gramA, filter = wrongFilter, family = "jsmurfPS",
-                           method = "LR", startTime = 9, messages = 10)
+                           method = "LR", startTime = 9, messages = 10, r = 100)
 
 # idealisation
 lines(idealisationWrong, col = "orange", lwd = 3)
@@ -172,13 +194,14 @@ lines(ind, convolvedSignal, col = "darkgreen", lwd = 3)
 # does not require a new simulation as the simulation from above will be used
 # (if the previous call was executed first)
 hilde(gramA[1:2.99e4], filter = filter, family = "jsmurfPS", method = "LR",
-      startTime = 9, nq = 3e4)
+      startTime = 9, nq = 3e4, r = 100)
 # note that arguments to compute critical values are used to compute q1 and q2
 # if this is not wanted, getCritVal can be called separately
 q1 <- getCritVal(length(gramA[1:2.99e4]), filter = filter, family = "jsmurfPS",
                  messages = 100, r = 1e3)
 hilde(gramA[1:2.99e4], filter = filter, family = "jsmurfPS", method = "LR",
-      q1 = q1, startTime = 9, nq = 3e4) # nq = 3e4 is only used to compute q2
+      q1 = q1, startTime = 9, nq = 3e4, r = 100)
+# nq = 3e4 and r = 100 are only used to compute q2
 
 # simulation of type "vectorIncreased" for n1 observations can only be reused 
 # for n2 observations if as.integer(log2(n1)) == as.integer(log2(n2))
@@ -186,7 +209,7 @@ hilde(gramA[1:2.99e4], filter = filter, family = "jsmurfPS", method = "LR",
 # will be loaded from the fileSystem
 # this call also saves a simulation of type "vectorIncreased" in the workspace  
 hilde(gramA[1:1e4], filter = filter, family = "jsmurfPS", method = "LR",
-      startTime = 9, nq = 3e4)
+      startTime = 9, nq = 3e4, r = 100)
 
 # the above calls saved and (attempted to) load Monte-Carlo simulations
 # in the following call the simulations will neither be saved nor loaded
@@ -198,22 +221,22 @@ hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR",
 # with given standard deviation
 sd <- stepR::sdrobnorm(gramA, lag = filter$len + 1)
 identical(hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR",
-                startTime = 9, sd = sd), idealisation)
+                startTime = 9, sd = sd, r = 100), idealisation)
 
 # with less regularisation of the correlation matrix
 hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR",
-      startTime = 9, regularization = 0.5)
+      startTime = 9, regularization = 0.5, r = 100)
 
 # with estimation of the level of long segments by the mean
 # but requiring 30 observations for it
 hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR",
-      startTime = 9, localValue = mean, thresholdLongSegment = 30)
+      startTime = 9, localValue = mean, thresholdLongSegment = 30, r = 100)
 
 # with one refinement step less, but with a larger grid
 # progress of the deconvolution is reported
 # potential warning for no deconvolution is suppressed
 hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR",
-      startTime = 9, messages = 100,
+      startTime = 9, messages = 100, r = 100,
       lengths = c(3:5, 8, 11, 16, 20),
       gridSize = c(1 / filter$sr, 1 / 10 / filter$sr),
       windowFactorRefinement = 2, report = TRUE,
@@ -224,7 +247,12 @@ hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR",
 # localList is passed via ... to improveSmallScales
 localList <- createLocalList(filter = filter, method = "LR")
 identical(hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR",
-                startTime = 9, localList = localList), idealisation)
-}}
+                startTime = 9, localList = localList, r = 100), idealisation)
+}
+\dontshow{
+unlink(file.path(tempdir(), "Rcache"), recursive = TRUE, force = TRUE)
+options(R.cache.rootPath = savePathRcache)
+}
+}
 
 \keyword{nonparametric}

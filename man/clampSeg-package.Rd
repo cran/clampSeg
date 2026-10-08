@@ -5,19 +5,22 @@
 
 \title{Idealisation of Patch Clamp Recordings}
 
-\description{Implements the model-free multiscale idealisation approaches: \bold{J}ump-\bold{S}egmentation by \bold{MU}ltiResolution \bold{F}ilter (\acronym{JSMURF}) (\cite{Hotz et al.}, 2013), \bold{JU}mp \bold{L}ocal d\bold{E}convolution \bold{S}egmentation (\acronym{JULES}) filter (\cite{Pein et al.}, 2018) and \bold{H}eterogeneous \bold{I}dealization by \bold{L}ocal testing and \bold{DE}convolution (\acronym{HILDE}) (\cite{Pein et al.}, 2021). These methods combine multiscale testing with deconvolution to idealise patch clamp recordings. They allow to deal with subconductance states and flickering. Further details are given in the accompanying vignette.}
+\description{Implements the model-free multiscale idealisation approaches: \bold{J}ump-\bold{S}egmentation by \bold{MU}ltiResolution \bold{F}ilter (\acronym{JSMURF}) (\cite{Hotz et al.}, 2013), \bold{JU}mp \bold{L}ocal d\bold{E}convolution \bold{S}egmentation (\acronym{JULES}) filter (\cite{Pein et al.}, 2018) and \bold{H}eterogeneous \bold{I}dealization by \bold{L}ocal testing and \bold{DE}convolution (\acronym{HILDE}) (\cite{Pein et al.}, 2021). These methods combine multiscale testing with deconvolution to idealise patch clamp recordings. They allow to deal with subconductance states and flickering. Further details are given in (\cite{Pein, Eltzner and Munk}, 2021).}
 
 \details{
-The main functions are \code{\link{jsmurf}}, \code{\link{jules}} and \code{\link{hilde}} which implement \acronym{JSMURF}, \acronym{JULES} and \acronym{HILDE}, respectively. \acronym{JSMURF} is the most simplest and fastest approach. If short events (flickering) occurs,  \acronym{JULES} or \acronym{HILDE} should be used instead. All three methods can assume homogeneous noise, but \acronym{JSMURF} and \acronym{HILDE} have options to allow for heterogeneous noise. Further details on when which method is suitable and on how to use them are given in Section II in the vignette.\cr
-The signal underlying the data in a patch clamp recording is assumed to be a step (piecewise constant) function, e.g. constant conductance levels are assumed. The signal is perturbed by (Gaussian) white noise and convolved with a lowpass filter, resulting in a smooth signal perturbed by correlated noise with known correlation structure. The white noise is scaled by a constant if homogeneous noise is assumed and by an unknown piecewise constant function if heterogeneous noise is assumed. Heterogeneous noise can for instance by caused by open channel noise. The recorded data points are modelled as sampled (digitised) recordings of this process. For more details on this model see Section III in the vignette. A small example of such a recording, 3 seconds of a gramicidin A recording, is given by \code{\link{gramA}}.\cr
+The main functions are \code{\link{jsmurf}}, \code{\link{jules}} and \code{\link{hilde}} which implement \acronym{JSMURF}, \acronym{JULES} and \acronym{HILDE}, respectively. \acronym{JSMURF} is the most simplest and fastest approach. If short events (flickering) occurs,  \acronym{JULES} or \acronym{HILDE} should be used instead. All three methods can assume homogeneous noise, but \acronym{JSMURF} and \acronym{HILDE} have options to allow for heterogeneous noise. Further details on when which method is suitable and on how to use them are given in the section \sQuote{Model-free idealizations} of \cite{Pein, Eltzner and Munk} (2021).\cr
+The signal underlying the data in a patch clamp recording is assumed to be a step (piecewise constant) function, e.g. constant conductance levels are assumed. The signal is perturbed by (Gaussian) white noise and convolved with a lowpass filter, resulting in a smooth signal perturbed by correlated noise with known correlation structure. The white noise is scaled by a constant if homogeneous noise is assumed and by an unknown piecewise constant function if heterogeneous noise is assumed. Heterogeneous noise can for instance by caused by open channel noise. The recorded data points are modelled as sampled (digitised) recordings of this process. For more details on this model see the section \sQuote{Models} of \cite{Pein, Eltzner and Munk} (2021). A small example of such a recording, 3 seconds of a gramicidin A recording, is given by \code{\link{gramA}}.\cr
 The filter can be created by the function \code{\link{lowpassFilter}}, currently only Bessel filters are supported. \code{\link{createLocalList}} allows pre-calculations for \code{\link{improveSmallScales}} and \code{\link{hilde}}. Doing so reduces the running time if \code{\link{improveSmallScales}} and \code{\link{hilde}} are called more than once. The multiscale step in all three approaches requires critical values. Be default, those values are automatically computed. Alternatively, they can be computed separately by \code{\link{getCritVal}}. Their computation relies on Monte-Carlo simulations.\cr
 A Monte-Carlo simulation lasts potentially much longer (up to several hours or days if the number of observations is in the millions) than the main calculations. Hence, multiple possibilities for saving and loading the simulations are offered and used by default. Simulations can either be saved in the workspace in the variable \code{critValStepRTab} or persistently on the file system for which the package \code{\link[R.cache]{R.cache}} is used. Moreover, storing in and loading from variables and \link[=readRDS]{RDS} files is supported. The simulation, saving and loading can be controlled by the argument \code{option}. By default simulations will be saved in the workspace and on the file system. For more details and for how simulations can be removed see the documentation of \code{\link{getCritVal}}.\cr
+\cite{Pein, Eltzner and Munk} (2021), see the references, describe the methodology and give detailed guidance on how recordings are analysed with this package.\cr
 The detection and estimation step of \acronym{JULES} can be obtained separately by the functions \code{\link{stepDetection}} and \code{\link{deconvolveLocally}}, respectively. The refinement steps (second and third step) of \acronym{HILDE}, which improve a fit on small temporal scales by testing for additional events and applying local deconvolution, can be accessed by the function \code{\link{improveSmallScales}}.
 }
 
 
 \encoding{utf8}
 \references{
+Pein, F., Eltzner, B., Munk, A. (2021) Analysis of patchclamp recordings: model-free multiscale methods and software. \emph{European Biophysics Journal} \bold{50}(2), 187--209. \doi{10.1007/s00249-021-01506-8}
+
 Pein, F., Bartsch, A., Steinem, C., Munk, A. (2021) Heterogeneous Idealization of Ion Channel Recordings - Open Channel Noise. \emph{IEEE Transactions on NanoBioscience} \bold{20}(1), 57--78.
 
 Pein, F., Tecuapetla-Gómez, I., \enc{Schütte}{Schuette}, O., Steinem, C., Munk, A. (2018) Fully-automatic multiresolution idealization for filtered ion channel recordings: flickering event detection. \emph{IEEE Transactions on NanoBioscience} \bold{17}(3), 300--320.
@@ -35,6 +38,13 @@ Frick, K., Munk, A. and Sieling, H. (2014) Multiscale change-point inference. Wi
 \seealso{\code{\link{jsmurf}}, \code{\link{jules}}, \code{\link{hilde}}, \code{\link{getCritVal}}, \code{\link{lowpassFilter}}, \code{\link{createLocalList}}, \code{\link{gramA}}, \code{\link{deconvolveLocally}}, \code{\link{stepDetection}}, \code{\link{improveSmallScales}}}
 
 \examples{
+\dontshow{
+# keep Monte-Carlo simulations inside the session's temporary directory,
+# setting the option before R.cache is loaded avoids that R.cache creates
+# its default cache root in the user's home directory
+savePathRcache <- getOption("R.cache.rootPath")
+options(R.cache.rootPath = file.path(tempdir(), "Rcache"))
+}
 ## idealisation of the gramicidin A recording given by gramA
 # the used filter
 filter <- lowpassFilter(type = "bessel", param = list(pole = 4L, cutoff = 1e3 / 1e4),
@@ -51,23 +61,23 @@ plot(time, gramA, pch = ".", col = "grey30", ylim = c(20, 50),
 # idealisations require Monte-Carlo simulations
 # and therefore might last a few minutes,
 # progress of the Monte-Carlo simulations is reported
+# to reduce the run time of this example, all simulations use fewer repetitions
+# than by default, r = 1e3 instead of r = 1e4 for JSMURF and JULES and r = 100
+# for HILDE, whose refinement step requires a much slower simulation,
+# this is okay for illustration purposes, but for precise results
+# the default number of Monte-Carlo simulations is recommended
 # JSMURF assuming homogeneous noise
 fit1 <- jsmurf(gramA, filter = filter, family = "jsmurfPS",
-               startTime = 9, messages = 100)
+               startTime = 9, messages = 100, r = 1e3)
 # JSMURF allowing heterogeneous noise
 fit2 <- jsmurf(gramA, filter = filter, family = "hjsmurf",
-               startTime = 9, messages = 100)
+               startTime = 9, messages = 100, r = 1e3)
 # JULES assuming homogeneous noise
-fit3 <- jules(gramA, filter = filter, startTime = 9, messages = 100)
+fit3 <- jules(gramA, filter = filter, startTime = 9, messages = 100, r = 1e3)
 # HILDE assuming homogeneous noise
 fit4 <- hilde(gramA, filter = filter, family = "jsmurfPS", method = "LR",
-              startTime = 9, messages = 10)
-# HILDE allowing heterogeneous noise
-fit5 <- hilde(gramA, filter = filter, family = "hjsmurf", method = "2Param",
               startTime = 9, messages = 10, r = 100)
-# r = 100 is used to reduce its run time,
-# this is okay for illustration purposes, but for precise results
-# a larger number of Monte-Carlo simulations is recommend
+# HILDE allowing heterogeneous noise is illustrated in the examples of hilde
 
 # gramA contains short peaks and the noise is homogeneous
 # hence jules seems to be most appropriate
@@ -80,29 +90,31 @@ lines(idealisation, col = "#FF0000", lwd = 3)
 ## similar points are valid for jsmurf and hilde, too,
 ## see also their individual documentation for more details
 # any second call should be much faster
-# as the previous Monte-Carlo simulation will be loaded
-jules(gramA, filter = filter, startTime = 9)
+# as the previous Monte-Carlo simulation will be loaded,
+# a simulation is only loaded if it has at least r repetitions,
+# hence the following calls pass r = 1e3, too
+jules(gramA, filter = filter, startTime = 9, r = 1e3)
 
 # much larger significance level alpha for a larger detection power,
 # but also with the risk of detecting additional artefacts
 # in this example much more changes are detected,
 # most of them are probably artefacts, but for instance the event at 11.36972
 # might be an additional small event that was missed before
-jules(gramA, filter = filter, alpha = 0.9, startTime = 9)
+jules(gramA, filter = filter, alpha = 0.9, startTime = 9, r = 1e3)
 
 # getCritVal was called in jules, can be called explicitly
 # for instance outside of a for loop to save run time
-q <- getCritVal(length(gramA), filter = filter)
+q <- getCritVal(length(gramA), filter = filter, r = 1e3)
 identical(jules(gramA, q = q, filter = filter, startTime = 9), idealisation)
 
 # both steps of JULES can be called separately
-fit <- stepDetection(gramA, filter = filter, startTime = 9)
+fit <- stepDetection(gramA, filter = filter, startTime = 9, r = 1e3)
 identical(deconvolveLocally(fit, data = gramA, filter = filter, startTime = 9),
           idealisation)
 
 # more detailed output
-each <- jules(gramA, filter = filter, startTime = 9, output = "each")
-every <- jules(gramA, filter = filter, startTime = 9, output = "every")
+each <- jules(gramA, filter = filter, startTime = 9, output = "each", r = 1e3)
+every <- jules(gramA, filter = filter, startTime = 9, output = "every", r = 1e3)
 
 identical(idealisation, each$idealization)
 idealisationEvery <- every$idealization[[3]]
@@ -157,7 +169,8 @@ wrongFilter <- lowpassFilter(type = "bessel",
                              sr = 1e4)
 # the needed Monte-Carlo simulation depends on the number of observations and the filter
 # hence a new simulation is required (if called for the first time)
-idealisationWrong <- jules(gramA, filter = wrongFilter, startTime = 9, messages = 100)
+idealisationWrong <- jules(gramA, filter = wrongFilter, startTime = 9, messages = 100,
+                           r = 1e3)
 
 # idealisation
 lines(idealisationWrong, col = "orange", lwd = 3)
@@ -195,7 +208,7 @@ jules(gramA, filter = filter, startTime = 9, messages = 100, r = 1e3,
 # only simulations of type "vector" and "vectorInceased" will be saved and
 # loaded from the workspace, but no simulations of type "matrix" and
 # "matrixIncreased" on the file system
-jules(gramA, filter = filter, startTime = 9, messages = 100,
+jules(gramA, filter = filter, startTime = 9, messages = 100, r = 1e3,
       options = list(load = list(workspace = c("vector", "vectorIncreased")),
                      save = list(workspace = c("vector", "vectorIncreased"))))
 
@@ -204,4 +217,9 @@ stat <- stepR::monteCarloSimulation(n = length(gramA), , family = "mDependentPS"
                                     filter = filter, output = "maximum",
                                     r = 1e3, messages = 100)
 jules(gramA, filter = filter, startTime = 9, stat = stat)
-}}
+}
+\dontshow{
+unlink(file.path(tempdir(), "Rcache"), recursive = TRUE, force = TRUE)
+options(R.cache.rootPath = savePathRcache)
+}
+}
